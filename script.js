@@ -208,8 +208,11 @@ function updateScrollMotion() {
   let nextActive = 0;
 
   sectionReads.forEach(({ section, rect, progress }, index) => {
+    const shift = (0.5 - progress) * 44;
     section.style.setProperty('--chapter-progress', progress.toFixed(4));
-    section.style.setProperty('--view-shift', `${((0.5 - progress) * 44).toFixed(1)}px`);
+    section.style.setProperty('--view-shift', `${shift.toFixed(1)}px`);
+    section.style.setProperty('--view-shift-opposite', `${(-shift).toFixed(1)}px`);
+    section.style.setProperty('--view-lift', `${(shift * 0.42).toFixed(1)}px`);
 
     if (rect.top <= viewportHeight * 0.48 && rect.bottom > viewportHeight * 0.28) {
       nextActive = index;
