@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="GOODMOOD 的 AI 视觉创作入门教程：从需求、提示词到生成、筛选、适配和发布。">
+  <meta name="theme-color" content="#020809">
+  <title>AI 视觉创作入门教程 / GOODMOOD</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="tutorial.css">
+</head>
+<body class="tutorial-page">
+<canvas id="field" aria-hidden="true"></canvas><div class="atmosphere" aria-hidden="true"></div><div class="grain" aria-hidden="true"></div><div class="progress"><span id="progressBar"></span></div><div class="cursor-aura"></div><div class="cursor-core"></div>
+<header class="nav-shell"><a class="brand" href="index.html#home"><span class="brand-signal"></span><span>GOODMOOD<small>AI GUIDE</small></span></a><button class="menu-toggle" type="button" aria-label="打开导航" aria-expanded="false"><span></span><span></span></button><nav><a href="index.html#home">首页</a><a href="index.html#ai-practice">AI 实操</a><a href="index.html#ai-tutorial">教程入口</a><a href="index.html#contact">联系</a></nav><div class="nav-status"><i></i> GUIDE / 001</div></header>
+<main>
+  <section class="tutorial-hero">
+    <div class="tutorial-hero-copy hero-enter">
+      <p class="overline">AI TUTORIAL / VISUAL WORKFLOW</p>
+      <h1>AI 视觉创作<br><strong>入门教程。</strong></h1>
+      <p>一套从需求、提示词、生成、筛选到发布的完整流程。它适合个人网站视觉图、封面图、作品集展示和社交媒体内容。</p>
+      <div class="hero-actions"><a class="button primary" href="#guide">START READING <b>↘</b></a><a class="button secondary" href="AI_TUTORIAL.md">VIEW MARKDOWN <b>↗</b></a></div>
+    </div>
+    <div class="tutorial-console hero-enter" aria-hidden="true">
+      <span>PROMPT STACK</span>
+      <i>subject: abstract energy core</i>
+      <i>scene: dark spatial field</i>
+      <i>lighting: cyan / violet rim</i>
+      <i>output: website hero image</i>
+    </div>
+  </section>
+  <article class="guide section" id="guide">
+    <div class="section-label reveal"><span>GUIDE CONTENT</span><b>001</b></div>
+    <div class="guide-layout">
+      <aside class="guide-toc reveal">
+        <a href="#task">01 定义任务</a>
+        <a href="#keywords">02 拆关键词</a>
+        <a href="#generate">03 生成方向</a>
+        <a href="#review">04 筛选复盘</a>
+        <a href="#delivery">05 精修交付</a>
+      </aside>
+      <div class="guide-content">
+        <section id="task" class="reveal"><p class="overline">STEP 01</p><h2>先定义任务，再打开工具。</h2><p>开始之前，先用一句话说明你到底要什么：我需要一张用于个人作品集首页的视觉图，主题是 3D 动态、粒子系统和 AI 创作，画面要有科技感、空间感和情绪张力，适合深色网页背景。</p><div class="guide-list"><span>用途：首页首屏图</span><span>比例：16:9 或 21:9</span><span>风格：未来感、清爽、精致</span><span>限制：不要文字、不要 logo、不要人物</span></div></section>
+        <section id="keywords" class="reveal"><p class="overline">STEP 02</p><h2>把提示词拆成七个模块。</h2><p>稳定的提示词不是长，而是结构清楚。你可以按主体、场景、材质、光线、构图、情绪、限制来写。</p><pre><code>主体：抽象 3D 能量核心、粒子场、光线轨道
+场景：深色空间、轻微雾气、远处网格
+材质：玻璃、荧光、半透明体积光
+光线：青绿色主光、蓝紫色边缘光
+构图：中心聚焦、周围粒子向内流动、留出文字区域
+情绪：安静、专注、未来感、好奇
+限制：不要文字、不要人物、不要 logo</code></pre></section>
+        <section id="generate" class="reveal"><p class="overline">STEP 03</p><h2>第一轮只找方向。</h2><p>第一轮不要追求细节，一次生成 4 到 8 张，快速判断哪个方向值得继续。</p><pre><code>An abstract 3D energy core floating in a dark spatial field,
+surrounded by flowing particle systems and soft orbital light trails,
+translucent glass material, cyan and violet rim light,
+subtle volumetric fog, elegant futuristic portfolio hero image,
+centered composition with empty space for typography,
+refined, calm, high detail, no text, no logo, no people</code></pre></section>
+        <section id="review" class="reveal"><p class="overline">STEP 04</p><h2>用问题筛选，而不是只凭感觉。</h2><p>看它是否能一眼表达主题，是否能放在网页里不抢正文，颜色是否统一，手机端裁切是否成立。</p><div class="guide-list"><span>V01：氛围好，但主体太复杂</span><span>V02：构图稳定，可以继续</span><span>V03：颜色偏脏，放弃</span><span>V04：有空间感，但留白不足</span></div></section>
+        <section id="delivery" class="reveal"><p class="overline">STEP 05</p><h2>最后做适配和交付。</h2><p>选中一个方向后，每轮只改一个变量。导出桌面端、宽屏首屏和移动端三个尺寸，并记录你为什么选择最终版本。</p><pre><code>Keep the same composition, reduce visual noise,
+make the center object cleaner, increase empty space on the left side
+for large typography, keep cyan and violet lighting,
+no text, no logo</code></pre><p>核心原则：AI 负责扩大可能性，人负责判断方向。</p></section>
+      </div>
+    </div>
+  </article>
+</main>
+<footer><span>© <b id="year"></b> ZHAO LUXIN</span><span>AI TUTORIAL / GOODMOOD VISUAL FIELD</span><a href="index.html#home">BACK TO SITE ↗</a></footer><div class="toast" role="status">PROMPT COPIED</div><script src="script.js"></script>
+</body>
+</html>
