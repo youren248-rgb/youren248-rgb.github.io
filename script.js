@@ -8,6 +8,23 @@ const saveData = navigator.connection?.saveData === true;
 const root = document.documentElement;
 const rootStyle = root.style;
 
+if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+
+const previewVersion = new URLSearchParams(location.search).has('v');
+
+function resetInitialScroll() {
+  const previousBehavior = root.style.scrollBehavior;
+  root.style.scrollBehavior = 'auto';
+  scrollTo(0, 0);
+  root.style.scrollBehavior = previousBehavior;
+}
+
+if (previewVersion) history.replaceState(null, '', location.pathname);
+if (previewVersion || !location.hash) {
+  requestAnimationFrame(resetInitialScroll);
+  addEventListener('pageshow', resetInitialScroll, { once: true });
+}
+
 root.classList.toggle('motion-ready', !reduceMotion.matches);
 
 const menu = $('.menu-toggle');
@@ -28,14 +45,14 @@ $$('nav a').forEach((link) => link.addEventListener('click', () => {
 $('#year').textContent = new Date().getFullYear();
 
 const scenePalettes = [
-  { r: 97, g: 255, b: 173 },
-  { r: 110, g: 225, b: 255 },
-  { r: 116, g: 255, b: 205 },
-  { r: 211, g: 255, b: 92 },
-  { r: 92, g: 139, b: 255 },
-  { r: 128, g: 255, b: 189 },
-  { r: 215, g: 255, b: 92 },
-  { r: 239, g: 255, b: 247 },
+  { r: 255, g: 174, b: 92 },
+  { r: 137, g: 154, b: 255 },
+  { r: 239, g: 226, b: 204 },
+  { r: 255, g: 190, b: 116 },
+  { r: 255, g: 161, b: 72 },
+  { r: 121, g: 143, b: 255 },
+  { r: 255, g: 207, b: 143 },
+  { r: 245, g: 241, b: 232 },
 ];
 
 const pageSections = $$('main > section');
@@ -304,259 +321,302 @@ if (finePointer && motionEnabled) {
   }
 }
 
+const carousel = $('[data-carousel]');
+
+if (carousel) {
+  const slides = $$('.work-slide', carousel);
+  const slideTabs = $$('[data-carousel-go]', carousel);
+  const counter = $('.work-counter b', carousel);
+  const previous = $('[data-carousel-prev]', carousel);
+  const next = $('[data-carousel-next]', carousel);
+  let currentSlide = 0;
+  let carouselTimer = 0;
+  let carouselVisible = false;
+  let carouselPaused = false;
+  let touchStartX = null;
+
+  function stopCarousel() {
+    clearTimeout(carouselTimer);
+    carouselTimer = 0;
+    carousel.classList.remove('cycling');
+  }
+
+  function startCarousel() {
+    stopCarousel();
+    if (reduceMotion.matches || carouselPaused || !carouselVisible) return;
+
+    requestAnimationFrame(() => {
+      carousel.classList.add('cycling');
+      carouselTimer = setTimeout(() => showSlide(currentSlide + 1), 7000);
+    });
+  }
+
+  function showSlide(index) {
+    currentSlide = (index + slides.length) % slides.length;
+
+    slides.forEach((slide, slideIndex) => {
+      const active = slideIndex === currentSlide;
+      slide.classList.toggle('active', active);
+      slide.setAttribute('aria-hidden', String(!active));
+    });
+
+    slideTabs.forEach((tab, tabIndex) => {
+      const active = tabIndex === currentSlide;
+      tab.classList.toggle('active', active);
+      tab.setAttribute('aria-selected', String(active));
+    });
+
+    counter.textContent = String(currentSlide + 1).padStart(2, '0');
+    startCarousel();
+  }
+
+  previous.addEventListener('click', () => showSlide(currentSlide - 1));
+  next.addEventListener('click', () => showSlide(currentSlide + 1));
+  slideTabs.forEach((tab) => tab.addEventListener('click', () => {
+    showSlide(Number(tab.dataset.carouselGo));
+  }));
+
+  carousel.addEventListener('mouseenter', () => {
+    carouselPaused = true;
+    stopCarousel();
+  });
+  carousel.addEventListener('mouseleave', () => {
+    carouselPaused = false;
+    startCarousel();
+  });
+  carousel.addEventListener('focusin', () => {
+    carouselPaused = true;
+    stopCarousel();
+  });
+  carousel.addEventListener('focusout', () => {
+    carouselPaused = false;
+    startCarousel();
+  });
+  carousel.addEventListener('pointerdown', (event) => {
+    if (event.pointerType === 'touch') touchStartX = event.clientX;
+  }, { passive: true });
+  carousel.addEventListener('pointerup', (event) => {
+    if (touchStartX === null) return;
+    const distance = event.clientX - touchStartX;
+    touchStartX = null;
+    if (Math.abs(distance) > 42) showSlide(currentSlide + (distance < 0 ? 1 : -1));
+  }, { passive: true });
+
+  const carouselObserver = new IntersectionObserver(([entry]) => {
+    carouselVisible = entry.isIntersecting;
+    if (carouselVisible) startCarousel();
+    else stopCarousel();
+  }, { threshold: 0.3 });
+
+  carouselObserver.observe(carousel);
+  reduceMotion.addEventListener?.('change', startCarousel);
+  showSlide(0);
+}
+
 const canvas = $('#field');
 const context = canvas.getContext('2d', { alpha: true });
-const contourSegments = [
-  [],
-  [[3, 0]],
-  [[0, 1]],
-  [[3, 1]],
-  [[1, 2]],
-  [[3, 0], [1, 2]],
-  [[0, 2]],
-  [[3, 2]],
-  [[2, 3]],
-  [[0, 2]],
-  [[0, 1], [2, 3]],
-  [[1, 2]],
-  [[1, 3]],
-  [[0, 1]],
-  [[3, 0]],
-  [],
-];
+let cosmicWidth = 0;
+let cosmicHeight = 0;
+let cosmicRatio = 1;
+let cosmicMobile = false;
+let cosmicStars = [];
+let cosmicFrame = 0;
+let cosmicLastFrame = 0;
+let cosmicStatic = reduceMotion.matches || saveData;
+const cosmicPointer = { x: 0, y: 0, targetX: 0, targetY: 0 };
 
-let fieldWidth = 0;
-let fieldHeight = 0;
-let fieldRatio = 1;
-let fieldCell = 30;
-let fieldColumns = 0;
-let fieldRows = 0;
-let fieldValues = new Float32Array(0);
-let fieldLevels = [-0.62, -0.24, 0.18, 0.58];
-let fieldProgress = 0;
-let fieldLastFrame = 0;
-let fieldFrame = 0;
-let fieldStatic = reduceMotion.matches || saveData;
-let mobileField = false;
-const fieldPalette = { ...scenePalettes[0] };
-const fieldPointer = { x: 0, y: 0, influence: 0, target: 0 };
+function createCosmicStars() {
+  const count = cosmicMobile ? 90 : Math.min(260, Math.floor(cosmicWidth / 5));
+  const maximumRadius = Math.hypot(cosmicWidth, cosmicHeight) * 0.72;
 
-function resizeField() {
-  fieldWidth = innerWidth;
-  fieldHeight = innerHeight;
-  mobileField = fieldWidth <= 760;
-  fieldRatio = mobileField ? 1 : Math.min(devicePixelRatio || 1, 1.5);
-  fieldCell = mobileField ? 44 : clamp(Math.round(fieldWidth / 58), 26, 36);
-  fieldLevels = mobileField ? [-0.42, 0.08, 0.54] : [-0.62, -0.24, 0.18, 0.58];
-  fieldColumns = Math.ceil(fieldWidth / fieldCell) + 1;
-  fieldRows = Math.ceil(fieldHeight / fieldCell) + 1;
-  fieldValues = new Float32Array(fieldColumns * fieldRows);
-
-  canvas.width = Math.round(fieldWidth * fieldRatio);
-  canvas.height = Math.round(fieldHeight * fieldRatio);
-  canvas.style.width = `${fieldWidth}px`;
-  canvas.style.height = `${fieldHeight}px`;
-  context.setTransform(fieldRatio, 0, 0, fieldRatio, 0, 0);
-
-  if (fieldStatic) drawContours(0);
+  cosmicStars = Array.from({ length: count }, () => ({
+    angle: Math.random() * Math.PI * 2,
+    radius: (0.08 + Math.pow(Math.random(), 0.66) * 0.92) * maximumRadius,
+    depth: 0.18 + Math.random() * 0.82,
+    size: 0.35 + Math.random() * 1.25,
+    speed: (Math.random() - 0.5) * 0.000025,
+    phase: Math.random() * Math.PI * 2,
+    color: Math.random(),
+  }));
 }
 
-function sampleField(x, y, time) {
-  const scale = Math.min(fieldWidth, fieldHeight);
-  const u = (x - fieldWidth * 0.5) / scale;
-  const v = (y - fieldHeight * 0.5) / scale;
-  const angle = fieldProgress * 1.1 + Math.sin(time * 0.00008) * 0.08;
-  const cosine = Math.cos(angle);
-  const sine = Math.sin(angle);
-  const rx = u * cosine - v * sine;
-  const ry = u * sine + v * cosine;
+function resizeCosmos() {
+  cosmicWidth = innerWidth;
+  cosmicHeight = innerHeight;
+  cosmicMobile = cosmicWidth <= 760;
+  cosmicRatio = cosmicMobile ? 1 : Math.min(devicePixelRatio || 1, 1.5);
+  canvas.width = Math.round(cosmicWidth * cosmicRatio);
+  canvas.height = Math.round(cosmicHeight * cosmicRatio);
+  canvas.style.width = `${cosmicWidth}px`;
+  canvas.style.height = `${cosmicHeight}px`;
+  context.setTransform(cosmicRatio, 0, 0, cosmicRatio, 0, 0);
+  createCosmicStars();
 
-  let value = 0.55 * Math.sin(rx * 7.2 + Math.sin(ry * 3.5 + time * 0.00022) * 1.6)
-    + 0.36 * Math.cos(ry * 8.6 - time * 0.00016)
-    + 0.23 * Math.sin((rx + ry) * 11.4 + fieldProgress * 14);
-
-  value += scrollEnergy * 0.22 * Math.sin(ry * 24 + time * 0.0008);
-
-  if (fieldPointer.influence > 0.01) {
-    const dx = u - fieldPointer.x;
-    const dy = v - fieldPointer.y;
-    const distance = dx * dx + dy * dy;
-    const pull = Math.exp(-distance * 22) * fieldPointer.influence;
-    value -= pull * 0.62;
-    value += pull * Math.sin(Math.atan2(dy, dx) * 3 + time * 0.0004) * 0.48;
-  }
-
-  return value;
+  if (cosmicStatic) drawCosmos(0);
 }
 
-function interpolate(level, start, end) {
-  const difference = end - start;
-  return clamp(difference ? (level - start) / difference : 0.5);
+function cosmicColor(star, alpha) {
+  if (star.color < 0.14) return `rgba(118,140,255,${alpha})`;
+  if (star.color < 0.38) return `rgba(255,174,92,${alpha})`;
+  return `rgba(245,241,232,${alpha})`;
 }
 
-function edgePoint(edge, x, y, level, values) {
-  const [topLeft, topRight, bottomRight, bottomLeft] = values;
+function drawCosmos(time) {
+  if (!cosmicWidth || !cosmicHeight) return;
 
-  if (edge === 0) {
-    return [x + fieldCell * interpolate(level, topLeft, topRight), y];
-  }
+  const base = Math.min(cosmicWidth, cosmicHeight);
+  const palette = scenePalettes[activeSectionIndex % scenePalettes.length];
+  const lensX = cosmicWidth * (cosmicMobile ? 0.64 : 0.72)
+    + cosmicPointer.x * cosmicWidth * 0.035;
+  const lensY = cosmicHeight * 0.42
+    + cosmicPointer.y * cosmicHeight * 0.028
+    + Math.sin(time * 0.00008) * base * 0.015;
+  const rotation = -0.18 + pageProgress * 0.7;
 
-  if (edge === 1) {
-    return [x + fieldCell, y + fieldCell * interpolate(level, topRight, bottomRight)];
-  }
-
-  if (edge === 2) {
-    return [x + fieldCell * interpolate(level, bottomLeft, bottomRight), y + fieldCell];
-  }
-
-  return [x, y + fieldCell * interpolate(level, topLeft, bottomLeft)];
-}
-
-function lineColor(levelIndex) {
-  if (levelIndex === 0) return `rgba(${fieldPalette.r},${fieldPalette.g},${fieldPalette.b},.16)`;
-  if (levelIndex === 1) return 'rgba(71,108,255,.14)';
-  if (levelIndex === 2) return 'rgba(215,255,92,.12)';
-  return 'rgba(238,255,247,.08)';
-}
-
-function drawContours(time) {
-  if (!fieldColumns || !fieldRows) return;
-
-  const targetPalette = scenePalettes[activeSectionIndex % scenePalettes.length];
-  fieldPalette.r += (targetPalette.r - fieldPalette.r) * 0.035;
-  fieldPalette.g += (targetPalette.g - fieldPalette.g) * 0.035;
-  fieldPalette.b += (targetPalette.b - fieldPalette.b) * 0.035;
-
-  for (let row = 0; row < fieldRows; row += 1) {
-    for (let column = 0; column < fieldColumns; column += 1) {
-      fieldValues[row * fieldColumns + column] = sampleField(
-        column * fieldCell,
-        row * fieldCell,
-        time,
-      );
-    }
-  }
-
-  context.clearRect(0, 0, fieldWidth, fieldHeight);
+  context.clearRect(0, 0, cosmicWidth, cosmicHeight);
   context.save();
-  context.globalCompositeOperation = 'lighter';
+  context.globalCompositeOperation = 'screen';
 
-  fieldLevels.forEach((level, levelIndex) => {
+  cosmicStars.forEach((star) => {
+    const angle = star.angle + time * star.speed + pageProgress * (0.24 + star.depth * 0.58);
+    const radius = star.radius * (0.96 + Math.sin(time * 0.00017 + star.phase) * 0.035);
+    const x = lensX + Math.cos(angle) * radius;
+    const y = lensY + Math.sin(angle) * radius * 0.58;
+    const tangentX = -Math.sin(angle);
+    const tangentY = Math.cos(angle) * 0.58;
+    const trail = 0.6 + scrollEnergy * 24 * star.depth;
+    const alpha = (0.16 + star.depth * 0.48) * (0.82 + Math.sin(time * 0.001 + star.phase) * 0.18);
+
     context.beginPath();
-
-    for (let row = 0; row < fieldRows - 1; row += 1) {
-      for (let column = 0; column < fieldColumns - 1; column += 1) {
-        const offset = row * fieldColumns + column;
-        const values = [
-          fieldValues[offset],
-          fieldValues[offset + 1],
-          fieldValues[offset + fieldColumns + 1],
-          fieldValues[offset + fieldColumns],
-        ];
-        const state = (values[0] >= level ? 1 : 0)
-          | (values[1] >= level ? 2 : 0)
-          | (values[2] >= level ? 4 : 0)
-          | (values[3] >= level ? 8 : 0);
-
-        contourSegments[state].forEach(([from, to]) => {
-          const start = edgePoint(from, column * fieldCell, row * fieldCell, level, values);
-          const end = edgePoint(to, column * fieldCell, row * fieldCell, level, values);
-          context.moveTo(start[0], start[1]);
-          context.lineTo(end[0], end[1]);
-        });
-      }
-    }
-
-    context.strokeStyle = lineColor(levelIndex);
-    context.lineWidth = [0.7, 0.9, 1.05, 0.7][levelIndex] || 0.75;
+    context.moveTo(x - tangentX * trail, y - tangentY * trail);
+    context.lineTo(x + tangentX * star.size, y + tangentY * star.size);
+    context.strokeStyle = cosmicColor(star, alpha);
+    context.lineWidth = star.size * (0.55 + star.depth * 0.55);
     context.stroke();
   });
 
-  const fractureX = fieldWidth * (0.12 + fieldProgress * 0.76);
-  context.beginPath();
-  context.setLineDash([1, Math.max(9, 24 - scrollEnergy * 12)]);
+  context.translate(lensX, lensY);
+  context.rotate(rotation);
+  context.scale(1, 0.58);
 
-  for (let y = -20; y <= fieldHeight + 20; y += 28) {
-    const x = fractureX + Math.sin(y * 0.018 + time * 0.0003) * (8 + scrollEnergy * 18);
-    if (y === -20) context.moveTo(x, y);
-    else context.lineTo(x, y);
+  for (let index = 0; index < 7; index += 1) {
+    const radius = base * (0.23 + index * 0.115);
+    const start = -1.35 + index * 0.37 + Math.sin(time * 0.00008 + index) * 0.12;
+    const end = start + 1.45 + index * 0.08;
+
+    context.beginPath();
+    context.arc(0, 0, radius, start, end);
+    context.setLineDash([radius * 0.34, radius * 0.11]);
+    context.lineDashOffset = -time * 0.003 * (index % 2 ? 1 : -1);
+    context.strokeStyle = index % 3 === 0
+      ? `rgba(${palette.r},${palette.g},${palette.b},.18)`
+      : index % 3 === 1
+        ? 'rgba(255,174,92,.15)'
+        : 'rgba(118,140,255,.13)';
+    context.lineWidth = index === 1 ? 1.3 : 0.75;
+    context.stroke();
   }
 
-  context.strokeStyle = `rgba(${fieldPalette.r},${fieldPalette.g},${fieldPalette.b},${0.1 + scrollEnergy * 0.08})`;
-  context.lineWidth = 1;
-  context.stroke();
+  context.setLineDash([]);
+  const beam = context.createLinearGradient(-base * 1.1, 0, base * 1.1, 0);
+  beam.addColorStop(0, 'rgba(255,174,92,0)');
+  beam.addColorStop(0.42, 'rgba(255,174,92,.04)');
+  beam.addColorStop(0.5, 'rgba(245,241,232,.34)');
+  beam.addColorStop(0.58, 'rgba(118,140,255,.05)');
+  beam.addColorStop(1, 'rgba(118,140,255,0)');
+  context.fillStyle = beam;
+  context.fillRect(-base * 1.15, -0.8, base * 2.3, 1.6);
   context.restore();
+
+  const horizon = context.createRadialGradient(
+    lensX,
+    lensY,
+    base * 0.075,
+    lensX,
+    lensY,
+    base * 0.34,
+  );
+  horizon.addColorStop(0, 'rgba(0,0,0,.94)');
+  horizon.addColorStop(0.24, 'rgba(0,0,0,.9)');
+  horizon.addColorStop(0.29, 'rgba(255,174,92,.1)');
+  horizon.addColorStop(0.42, 'rgba(118,140,255,.025)');
+  horizon.addColorStop(1, 'rgba(0,0,0,0)');
+  context.fillStyle = horizon;
+  context.fillRect(
+    lensX - base * 0.36,
+    lensY - base * 0.36,
+    base * 0.72,
+    base * 0.72,
+  );
 }
 
-function renderField(time) {
-  fieldFrame = 0;
-  if (document.hidden || fieldStatic) return;
+function renderCosmos(time) {
+  cosmicFrame = 0;
+  if (document.hidden || cosmicStatic) return;
 
-  const frameInterval = 1000 / (mobileField ? 24 : 40);
+  const frameInterval = 1000 / (cosmicMobile ? 24 : 40);
 
-  if (time - fieldLastFrame < frameInterval) {
-    fieldFrame = requestAnimationFrame(renderField);
+  if (time - cosmicLastFrame < frameInterval) {
+    cosmicFrame = requestAnimationFrame(renderCosmos);
     return;
   }
 
-  fieldLastFrame = time;
-  fieldProgress += (pageProgress - fieldProgress) * 0.045;
-  fieldPointer.influence += (fieldPointer.target - fieldPointer.influence) * 0.08;
+  cosmicLastFrame = time;
+  cosmicPointer.x += (cosmicPointer.targetX - cosmicPointer.x) * 0.035;
+  cosmicPointer.y += (cosmicPointer.targetY - cosmicPointer.y) * 0.035;
   scrollEnergy *= 0.91;
-  drawContours(time);
-  fieldFrame = requestAnimationFrame(renderField);
+  drawCosmos(time);
+  cosmicFrame = requestAnimationFrame(renderCosmos);
 }
 
-function startField() {
-  if (!fieldStatic && !fieldFrame && !document.hidden) {
-    fieldFrame = requestAnimationFrame(renderField);
+function startCosmos() {
+  if (!cosmicStatic && !cosmicFrame && !document.hidden) {
+    cosmicFrame = requestAnimationFrame(renderCosmos);
   }
 }
 
-function stopField() {
-  if (fieldFrame) cancelAnimationFrame(fieldFrame);
-  fieldFrame = 0;
+function stopCosmos() {
+  if (cosmicFrame) cancelAnimationFrame(cosmicFrame);
+  cosmicFrame = 0;
 }
 
 if (finePointer) {
   addEventListener('pointermove', (event) => {
-    const scale = Math.min(fieldWidth, fieldHeight) || 1;
-    fieldPointer.x = (event.clientX - fieldWidth * 0.5) / scale;
-    fieldPointer.y = (event.clientY - fieldHeight * 0.5) / scale;
-    fieldPointer.target = 1;
+    cosmicPointer.targetX = clamp(event.clientX / Math.max(cosmicWidth, 1) - 0.5, -0.5, 0.5);
+    cosmicPointer.targetY = clamp(event.clientY / Math.max(cosmicHeight, 1) - 0.5, -0.5, 0.5);
   }, { passive: true });
 
   root.addEventListener('pointerleave', () => {
-    fieldPointer.target = 0;
+    cosmicPointer.targetX = 0;
+    cosmicPointer.targetY = 0;
   });
 }
 
-addEventListener('resize', resizeField);
+addEventListener('resize', resizeCosmos);
 document.addEventListener('visibilitychange', () => {
-  if (document.hidden) stopField();
-  else startField();
+  if (document.hidden) stopCosmos();
+  else startCosmos();
 });
 
 reduceMotion.addEventListener?.('change', (event) => {
   motionEnabled = !event.matches;
-  fieldStatic = event.matches || saveData;
+  cosmicStatic = event.matches || saveData;
   root.classList.toggle('motion-ready', motionEnabled);
   setupRevealObserver();
   scheduleScrollMotion();
 
-  if (fieldStatic) {
-    stopField();
-    fieldProgress = pageProgress;
-    drawContours(0);
+  if (cosmicStatic) {
+    stopCosmos();
+    drawCosmos(0);
   } else {
-    startField();
+    startCosmos();
   }
 });
 
-resizeField();
+resizeCosmos();
 setupRevealObserver();
 setActiveSection(0);
 updateScrollMotion();
 
-if (fieldStatic) drawContours(0);
-else startField();
+if (cosmicStatic) drawCosmos(0);
+else startCosmos();
