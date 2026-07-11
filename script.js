@@ -1,167 +1,77 @@
+'use strict';
+
 const $ = (selector, context = document) => context.querySelector(selector);
 const $$ = (selector, context = document) => [...context.querySelectorAll(selector)];
 const clamp = (value, min = 0, max = 1) => Math.min(max, Math.max(min, value));
+const smoothstep = (value) => value * value * (3 - 2 * value);
 
-const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
-const finePointer = matchMedia('(pointer: fine)').matches;
-const saveData = navigator.connection?.saveData === true;
 const root = document.documentElement;
 const rootStyle = root.style;
+const body = document.body;
+const motionQuery = matchMedia('(prefers-reduced-motion: reduce)');
+const finePointer = matchMedia('(pointer: fine)').matches;
+const saveData = navigator.connection?.saveData === true;
 
+/* Keep previews and fresh visits at the origin while respecting deliberate hashes. */
 const initialUrl = new URL(location.href);
-const previewVersion = initialUrl.searchParams.has('v');
-const initialHash = previewVersion ? '' : initialUrl.hash.slice(1);
+const isVersionPreview = initialUrl.searchParams.has('v');
+const initialHash = isVersionPreview ? '' : initialUrl.hash.slice(1);
+const forceCanvas2D = initialUrl.searchParams.get('renderer') === '2d';
 
-if (previewVersion) {
-  if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
-  history.replaceState(null, '', initialUrl.pathname);
-}
+if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+if (isVersionPreview) history.replaceState(null, '', initialUrl.pathname);
 
 function alignInitialPosition() {
-  const previousBehavior = root.style.scrollBehavior;
+  const behavior = root.style.scrollBehavior;
   root.style.scrollBehavior = 'auto';
 
-  if (previewVersion) {
-    scrollTo(0, 0);
-  } else if (initialHash) {
+  if (initialHash) {
     document.getElementById(initialHash)?.scrollIntoView({ block: 'start' });
+  } else {
+    scrollTo(0, 0);
   }
 
-  root.style.scrollBehavior = previousBehavior;
+  root.style.scrollBehavior = behavior;
 }
 
-root.classList.toggle('motion-ready', !reduceMotion.matches);
+requestAnimationFrame(() => requestAnimationFrame(alignInitialPosition));
+addEventListener('pageshow', alignInitialPosition, { once: true });
+addEventListener('load', () => requestAnimationFrame(alignInitialPosition), { once: true });
+setTimeout(alignInitialPosition, 120);
 
+/* Navigation */
 const menu = $('.menu-toggle');
-const nav = $('nav');
+const navigation = $('nav');
 
-menu.addEventListener('click', () => {
-  const open = nav.classList.toggle('open');
+function closeMenu() {
+  if (!menu || !navigation) return;
+  navigation.classList.remove('open');
+  menu.classList.remove('active');
+  menu.setAttribute('aria-expanded', 'false');
+}
+
+menu?.addEventListener('click', () => {
+  const open = navigation.classList.toggle('open');
   menu.classList.toggle('active', open);
   menu.setAttribute('aria-expanded', String(open));
 });
 
-$$('nav a').forEach((link) => link.addEventListener('click', () => {
-  nav.classList.remove('open');
-  menu.classList.remove('active');
-  menu.setAttribute('aria-expanded', 'false');
-}));
-
-$('#year').textContent = new Date().getFullYear();
-
-const scenePalettes = [
-  { r: 255, g: 174, b: 92 },
-  { r: 137, g: 154, b: 255 },
-  { r: 239, g: 226, b: 204 },
-  { r: 255, g: 190, b: 116 },
-  { r: 255, g: 161, b: 72 },
-  { r: 245, g: 241, b: 232 },
-  { r: 255, g: 207, b: 143 },
-  { r: 245, g: 241, b: 232 },
-];
-
-const pageSections = $$('main > section');
-const navLinks = $$('nav a');
-const progressBar = $('#progressBar');
-let pageProgress = 0;
-let scrollEnergy = 0;
-let activeSectionIndex = 0;
-let lastScrollY = scrollY;
-let scrollFrame = 0;
-let motionEnabled = !reduceMotion.matches;
-
-pageSections.forEach((section, index) => {
-  section.dataset.chapter = String(index).padStart(2, '0');
+$$('nav a').forEach((link) => link.addEventListener('click', closeMenu));
+addEventListener('keydown', (event) => {
+  if (event.key === 'Escape') closeMenu();
 });
 
-const telemetry = document.createElement('aside');
-telemetry.className = 'scroll-telemetry';
-telemetry.setAttribute('aria-hidden', 'true');
+const year = $('#year');
+if (year) year.textContent = String(new Date().getFullYear());
 
-const telemetryIndex = document.createElement('b');
-const telemetryTrack = document.createElement('i');
-const telemetryMarker = document.createElement('span');
-const telemetryLabel = document.createElement('small');
-
-telemetryTrack.append(telemetryMarker);
-telemetry.append(telemetryIndex, telemetryTrack, telemetryLabel);
-document.body.append(telemetry);
-
-const parallaxConfig = [
-  ['.field-stage', 24],
-  ['.exp-visual', 16],
-  ['.tutorial-panel', 12],
-  ['.qr-card', 14],
-];
-
-parallaxConfig.forEach(([selector, amount]) => {
-  $$(selector).forEach((item) => {
-    item.dataset.parallax = String(amount);
-  });
-});
-
-const parallaxItems = $$('[data-parallax]');
-
-const segmenter = typeof Intl.Segmenter === 'function'
-  ? new Intl.Segmenter('zh-CN', { granularity: 'grapheme' })
-  : null;
-
-function splitTitle(title) {
-  const label = title.innerText.replace(/\s+/g, ' ').trim();
-  const walker = document.createTreeWalker(title, NodeFilter.SHOW_TEXT);
-  const nodes = [];
-
-  while (walker.nextNode()) nodes.push(walker.currentNode);
-
-  let index = 0;
-
-  nodes.forEach((node) => {
-    const fragment = document.createDocumentFragment();
-    const parts = segmenter
-      ? [...segmenter.segment(node.nodeValue)].map((item) => item.segment)
-      : [...node.nodeValue];
-
-    parts.forEach((part) => {
-      if (/^\s+$/.test(part)) {
-        fragment.append(part);
-        return;
-      }
-
-      const mask = document.createElement('span');
-      const character = document.createElement('span');
-      mask.className = 'char-mask';
-      mask.setAttribute('aria-hidden', 'true');
-      character.className = 'char';
-      character.style.setProperty('--char-index', String(Math.min(index++, 30)));
-      character.textContent = part;
-      mask.append(character);
-      fragment.append(mask);
-    });
-
-    node.replaceWith(fragment);
-  });
-
-  title.classList.add('split-title');
-  title.setAttribute('aria-label', label);
-}
-
-const splitTitles = $$('.section h2, .contact h2');
-splitTitles.forEach(splitTitle);
-
-$$('.practice-grid, .focus-cards, .experiment-grid, .tutorial-map').forEach((group) => {
-  [...group.children].forEach((item, index) => {
-    item.classList.add('reveal');
-    item.style.setProperty('--reveal-delay', `${Math.min(index * 75, 225)}ms`);
-  });
-});
-
-const revealTargets = [...new Set([...$$('.reveal'), ...splitTitles])];
+/* Reveal choreography */
+const revealTargets = $$('.reveal');
 let revealObserver;
 
 function setupRevealObserver() {
   revealObserver?.disconnect();
 
-  if (!motionEnabled || !('IntersectionObserver' in window)) {
+  if (motionQuery.matches || !('IntersectionObserver' in window)) {
     revealTargets.forEach((target) => target.classList.add('visible'));
     return;
   }
@@ -172,223 +82,285 @@ function setupRevealObserver() {
       entry.target.classList.add('visible');
       revealObserver.unobserve(entry.target);
     });
-  }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+  }, { threshold: 0.1, rootMargin: '0px 0px -7% 0px' });
 
-  revealTargets.forEach((target) => {
+  revealTargets.forEach((target, index) => {
+    target.style.setProperty('--reveal-order', String(index % 5));
     if (!target.classList.contains('visible')) revealObserver.observe(target);
   });
 }
 
-function sectionLabel(section) {
-  return section.querySelector('.section-label span, .overline')?.textContent.trim()
-    || section.id.replaceAll('-', ' ').toUpperCase();
+setupRevealObserver();
+
+/* Cosmos scene controller */
+const canvas = $('[data-cosmos]');
+let cosmos = null;
+const cosmosState = {
+  pointerX: 0,
+  pointerY: 0,
+  pointerActive: 0,
+  pointerShock: 0,
+  scrollProgress: 0,
+  scrollVelocity: 0,
+  scene: 0,
+  nextScene: 0,
+  sceneMix: 0,
+};
+
+function createCosmos() {
+  cosmos?.destroy?.();
+  cosmos = null;
+
+  if (!canvas || !globalThis.GoodMoodCosmos?.create) return;
+
+  cosmos = globalThis.GoodMoodCosmos.create(canvas, {
+    reducedMotion: motionQuery.matches,
+    static: motionQuery.matches || saveData,
+    quality: 'auto',
+    autoInput: false,
+    autoResize: false,
+    autoPause: false,
+    forceCanvas2D,
+    onReady: ({ mode }) => { body.dataset.cosmosRenderer = mode; },
+    onQualityChange: ({ quality }) => { body.dataset.cosmosQuality = String(quality); },
+    onContextLost: () => { body.dataset.cosmosState = 'lost'; },
+    onContextRestored: () => { body.dataset.cosmosState = 'ready'; },
+    onError: ({ phase, error }) => console.error(`[GOODMOOD COSMOS / ${phase}]`, error),
+  });
+  body.dataset.cosmosRenderer = cosmos?.mode || 'unavailable';
+  body.dataset.cosmosState = 'ready';
+  cosmos?.setInput?.(cosmosState);
 }
 
-function setActiveSection(index) {
-  activeSectionIndex = index;
-  const section = pageSections[index];
-  const palette = scenePalettes[index % scenePalettes.length];
+createCosmos();
 
-  rootStyle.setProperty('--scene-rgb', `${palette.r} ${palette.g} ${palette.b}`);
-  telemetryIndex.textContent = String(index).padStart(2, '0');
-  telemetryLabel.textContent = sectionLabel(section);
+const sceneSections = $$('[data-cosmos-scene]');
+const navLinks = $$('nav a');
+const progressBar = $('#progressBar');
+let activeSection = -1;
+let lastScrollY = scrollY;
+let lastScrollTime = performance.now();
+let scrollFrame = 0;
+let inputFrame = 0;
 
-  pageSections.forEach((item, sectionIndex) => {
-    item.classList.toggle('is-current', sectionIndex === index);
-  });
-
-  navLinks.forEach((link) => {
-    if (link.getAttribute('href') === `#${section.id}`) {
-      link.setAttribute('aria-current', 'page');
-    } else {
-      link.removeAttribute('aria-current');
-    }
-  });
+function sceneLabel(section) {
+  return section?.id || 'home';
 }
 
-function updateScrollMotion() {
+function feedCosmos() {
+  cosmos?.setInput?.(cosmosState);
+  rootStyle.setProperty('--pointer-x', cosmosState.pointerX.toFixed(4));
+  rootStyle.setProperty('--pointer-y', cosmosState.pointerY.toFixed(4));
+  rootStyle.setProperty('--scroll-velocity', cosmosState.scrollVelocity.toFixed(4));
+}
+
+function decayInput() {
+  inputFrame = 0;
+  cosmosState.scrollVelocity *= 0.86;
+  cosmosState.pointerShock *= 0.9;
+  feedCosmos();
+
+  if (Math.abs(cosmosState.scrollVelocity) > 0.006 || cosmosState.pointerShock > 0.01) {
+    inputFrame = requestAnimationFrame(decayInput);
+  }
+}
+
+function scheduleInputDecay() {
+  if (!inputFrame) inputFrame = requestAnimationFrame(decayInput);
+}
+
+function updateScrollState() {
   scrollFrame = 0;
-
   const viewportHeight = innerHeight;
-  const maxScroll = root.scrollHeight - viewportHeight;
+  const maxScroll = Math.max(1, root.scrollHeight - viewportHeight);
   const currentY = scrollY;
+  const currentTime = performance.now();
+  const elapsed = Math.max(16, currentTime - lastScrollTime);
   const delta = currentY - lastScrollY;
-  const mobileScale = innerWidth <= 760 ? 0.5 : 1;
+  const normalizedVelocity = clamp((delta / elapsed) * 0.22, -1.4, 1.4);
 
-  pageProgress = maxScroll ? currentY / maxScroll : 0;
-  scrollEnergy = Math.min(1, scrollEnergy + Math.abs(delta) / 180);
+  cosmosState.scrollProgress = clamp(currentY / maxScroll);
+  cosmosState.scrollVelocity += (normalizedVelocity - cosmosState.scrollVelocity) * 0.5;
   lastScrollY = currentY;
+  lastScrollTime = currentTime;
 
-  rootStyle.setProperty('--page-progress', pageProgress.toFixed(4));
-  rootStyle.setProperty(
-    '--bg-y',
-    motionEnabled ? `${Math.round((pageProgress - 0.5) * -64)}px` : '0px',
-  );
-  progressBar.style.transform = `scaleX(${pageProgress})`;
+  rootStyle.setProperty('--page-progress', cosmosState.scrollProgress.toFixed(4));
+  progressBar?.style.setProperty('transform', `scaleX(${cosmosState.scrollProgress})`);
 
-  const sectionReads = pageSections.map((section) => {
+  const reads = sceneSections.map((section) => {
     const rect = section.getBoundingClientRect();
     const progress = clamp((viewportHeight - rect.top) / (viewportHeight + rect.height));
+    section.style.setProperty('--section-progress', progress.toFixed(4));
+    section.classList.toggle(
+      'is-near',
+      rect.bottom > -viewportHeight * 0.3 && rect.top < viewportHeight * 1.3,
+    );
     return { section, rect, progress };
   });
 
-  const parallaxReads = parallaxItems
-    .map((item) => ({ item, rect: item.getBoundingClientRect() }))
-    .filter(({ rect }) => (
-      motionEnabled
-      && rect.bottom > -viewportHeight * 0.25
-      && rect.top < viewportHeight * 1.25
-    ));
+  if (reads.length) {
+    let nextActive = 0;
+    reads.forEach(({ rect }, index) => {
+      if (rect.top <= viewportHeight * 0.52) nextActive = index;
+    });
 
-  let nextActive = 0;
+    const current = reads[nextActive];
+    const following = reads[Math.min(nextActive + 1, reads.length - 1)];
+    const currentScene = Number(current?.section.dataset.cosmosScene || 0);
+    const followingScene = Number(following?.section.dataset.cosmosScene || currentScene);
+    const transition = current
+      ? smoothstep(clamp((current.progress - 0.56) / 0.36))
+      : 0;
 
-  sectionReads.forEach(({ section, rect, progress }, index) => {
-    const nearViewport = rect.bottom > -viewportHeight * 0.35
-      && rect.top < viewportHeight * 1.35;
+    cosmosState.scene = currentScene;
+    cosmosState.nextScene = followingScene;
+    cosmosState.sceneMix = followingScene === currentScene ? 0 : transition;
 
-    section.classList.toggle('is-near', nearViewport);
-
-    if (!motionEnabled) {
-      section.style.setProperty('--view-shift', '0px');
-      section.style.setProperty('--view-shift-opposite', '0px');
-      section.style.setProperty('--view-lift', '0px');
-    } else if (nearViewport) {
-      const shift = (0.5 - progress) * 44;
-      section.style.setProperty('--chapter-progress', progress.toFixed(4));
-      section.style.setProperty('--view-shift', `${shift.toFixed(1)}px`);
-      section.style.setProperty('--view-shift-opposite', `${(-shift).toFixed(1)}px`);
-      section.style.setProperty('--view-lift', `${(shift * 0.42).toFixed(1)}px`);
+    if (nextActive !== activeSection) {
+      activeSection = nextActive;
+      sceneSections.forEach(({ classList }, index) => classList.toggle('is-current', index === nextActive));
+      const activeId = sceneLabel(sceneSections[nextActive]);
+      navLinks.forEach((link) => {
+        if (link.getAttribute('href') === `#${activeId}`) link.setAttribute('aria-current', 'page');
+        else link.removeAttribute('aria-current');
+      });
     }
+  }
 
-    if (rect.top <= viewportHeight * 0.48 && rect.bottom > viewportHeight * 0.28) {
-      nextActive = index;
-    }
-  });
+  feedCosmos();
+  scheduleInputDecay();
+}
 
-  parallaxReads.forEach(({ item, rect }) => {
-    const center = rect.top + rect.height / 2;
-    const normalized = clamp(
-      (viewportHeight / 2 - center) / (viewportHeight + rect.height),
-      -0.5,
-      0.5,
-    ) * 2;
-    const amount = Number(item.dataset.parallax) * mobileScale;
-    item.style.setProperty('--parallax-y', `${(normalized * amount).toFixed(1)}px`);
-  });
+function scheduleScrollState() {
+  if (!scrollFrame) scrollFrame = requestAnimationFrame(updateScrollState);
+}
 
-  telemetry.style.setProperty('--telemetry-progress', pageProgress.toFixed(4));
+addEventListener('scroll', scheduleScrollState, { passive: true });
+addEventListener('resize', () => {
+  cosmos?.resize?.();
+  scheduleScrollState();
+}, { passive: true });
 
-  if (nextActive !== activeSectionIndex || !telemetryLabel.textContent) {
-    setActiveSection(nextActive);
+/* Pointer gravity, touch shockwave, and cursor orbit */
+const cursorAura = $('.cursor-aura');
+const cursorCore = $('.cursor-core');
+const cursor = { x: innerWidth / 2, y: innerHeight / 2, tx: innerWidth / 2, ty: innerHeight / 2 };
+let cursorFrame = 0;
+
+function renderCursor() {
+  cursorFrame = 0;
+  cursor.x += (cursor.tx - cursor.x) * 0.16;
+  cursor.y += (cursor.ty - cursor.y) * 0.16;
+  cursorAura?.style.setProperty('transform', `translate3d(${cursor.x}px, ${cursor.y}px, 0) translate(-50%, -50%)`);
+  cursorCore?.style.setProperty('transform', `translate3d(${cursor.tx}px, ${cursor.ty}px, 0) translate(-50%, -50%)`);
+
+  if (Math.abs(cursor.tx - cursor.x) > 0.25 || Math.abs(cursor.ty - cursor.y) > 0.25) {
+    cursorFrame = requestAnimationFrame(renderCursor);
   }
 }
 
-function scheduleScrollMotion() {
-  if (!scrollFrame) scrollFrame = requestAnimationFrame(updateScrollMotion);
+function updatePointer(event) {
+  cursor.tx = event.clientX;
+  cursor.ty = event.clientY;
+  cosmosState.pointerX = clamp(event.clientX / Math.max(innerWidth, 1) - 0.5, -0.5, 0.5) * 2;
+  cosmosState.pointerY = clamp(0.5 - event.clientY / Math.max(innerHeight, 1), -0.5, 0.5) * 2;
+  cosmosState.pointerActive = 1;
+  feedCosmos();
+
+  if (finePointer && !cursorFrame) cursorFrame = requestAnimationFrame(renderCursor);
 }
 
-addEventListener('scroll', scheduleScrollMotion, { passive: true });
-addEventListener('resize', scheduleScrollMotion);
+addEventListener('pointermove', updatePointer, { passive: true });
+addEventListener('pointerdown', (event) => {
+  updatePointer(event);
+  cosmosState.pointerShock = 1;
+  body.classList.remove('is-shocked');
+  void body.offsetWidth;
+  body.classList.add('is-shocked');
+  feedCosmos();
+  scheduleInputDecay();
+}, { passive: true });
 
-const tabs = $$('.protocol-tab');
-const panels = $$('.protocol-panel');
+root.addEventListener('pointerleave', () => {
+  cosmosState.pointerX = 0;
+  cosmosState.pointerY = 0;
+  cosmosState.pointerActive = 0;
+  feedCosmos();
+});
 
-tabs.forEach((tab) => tab.addEventListener('click', () => {
-  const step = tab.dataset.step;
+/* Method tabs */
+const methodTabs = $$('.protocol-tab');
+const methodPanels = $$('.protocol-panel');
 
-  tabs.forEach((item) => {
-    const active = item === tab;
-    item.classList.toggle('active', active);
-    item.setAttribute('aria-selected', String(active));
+function activateMethod(index, focus = false) {
+  const safeIndex = (index + methodTabs.length) % methodTabs.length;
+  methodTabs.forEach((tab, tabIndex) => {
+    const active = tabIndex === safeIndex;
+    tab.classList.toggle('active', active);
+    tab.setAttribute('aria-selected', String(active));
+    tab.tabIndex = active ? 0 : -1;
+    if (active && focus) tab.focus();
   });
-
-  panels.forEach((panel) => {
-    const active = panel.dataset.panel === step;
+  methodPanels.forEach((panel, panelIndex) => {
+    const active = panelIndex === safeIndex;
     panel.classList.toggle('active', active);
     panel.hidden = !active;
   });
-}));
-
-const toast = $('.toast');
-const copyTrigger = $('.copy-trigger');
-
-if (copyTrigger) copyTrigger.addEventListener('click', async (event) => {
-  const text = event.currentTarget.dataset.copy;
-
-  try {
-    await navigator.clipboard.writeText(text);
-    toast.textContent = 'PROMPT COPIED';
-  } catch {
-    toast.textContent = 'SELECT & COPY THE PROMPT';
-  }
-
-  toast.classList.add('show');
-  setTimeout(() => toast.classList.remove('show'), 1700);
-});
-
-if (finePointer && motionEnabled) {
-  const aura = $('.cursor-aura');
-  const core = $('.cursor-core');
-
-  addEventListener('pointermove', (event) => {
-    aura.style.left = core.style.left = `${event.clientX}px`;
-    aura.style.top = core.style.top = `${event.clientY}px`;
-  }, { passive: true });
-
-  const stage = $('.field-stage');
-
-  if (stage) {
-    stage.addEventListener('pointermove', (event) => {
-      const rect = stage.getBoundingClientRect();
-      const x = (event.clientX - rect.left) / rect.width - 0.5;
-      const y = (event.clientY - rect.top) / rect.height - 0.5;
-      stage.style.transform = `perspective(1000px) rotateX(${y * -3.5}deg) rotateY(${x * 4.5}deg)`;
-    });
-    stage.addEventListener('pointerleave', () => {
-      stage.style.transform = '';
-    });
-  }
 }
 
+methodTabs.forEach((tab, index) => {
+  tab.addEventListener('click', () => activateMethod(index));
+  tab.addEventListener('keydown', (event) => {
+    if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+    event.preventDefault();
+    if (event.key === 'Home') activateMethod(0, true);
+    else if (event.key === 'End') activateMethod(methodTabs.length - 1, true);
+    else activateMethod(index + (event.key === 'ArrowRight' ? 1 : -1), true);
+  });
+});
+
+if (methodTabs.length) activateMethod(0);
+
+/* Selected work carousel */
 const carousel = $('[data-carousel]');
 
 if (carousel) {
   const slides = $$('.work-slide', carousel);
   const slideTabs = $$('[data-carousel-go]', carousel);
   const counter = $('.work-counter b', carousel);
+  const controls = $('.work-controls', carousel);
   const previous = $('[data-carousel-prev]', carousel);
   const next = $('[data-carousel-next]', carousel);
-  const controls = $('.work-controls', carousel);
-  const playback = document.createElement('button');
+  const pauseReasons = new Set(['offscreen']);
   let currentSlide = 0;
   let carouselTimer = 0;
   let carouselFrame = 0;
   let carouselVisible = false;
   let touchStartX = null;
-  const pauseReasons = new Set();
+  let manualPauseTimer = 0;
+  let scrollPauseTimer = 0;
 
+  const playback = document.createElement('button');
   playback.type = 'button';
   playback.className = 'work-playback';
-  playback.textContent = 'Ⅱ';
-  playback.setAttribute('aria-label', '暂停自动播放');
   playback.setAttribute('aria-pressed', 'false');
-  controls.append(playback);
+  controls?.append(playback);
 
-  function syncPlaybackControl() {
-    const paused = pauseReasons.has('user');
-    playback.textContent = paused ? '▶' : 'Ⅱ';
-    playback.setAttribute('aria-label', paused ? '继续自动播放' : '暂停自动播放');
-    playback.setAttribute('aria-pressed', String(paused));
+  function syncPlaybackLabel() {
+    const userPaused = pauseReasons.has('user');
+    playback.textContent = userPaused ? '▶' : 'Ⅱ';
+    playback.setAttribute('aria-pressed', String(userPaused));
+    playback.setAttribute('aria-label', userPaused ? '继续自动播放' : '暂停自动播放');
   }
 
-  function canCycle() {
+  function canAutoplay() {
     return carouselVisible
       && !document.hidden
-      && !reduceMotion.matches
+      && !motionQuery.matches
       && pauseReasons.size === 0;
   }
 
-  function stopCarousel() {
+  function stopCarouselClock() {
     clearTimeout(carouselTimer);
     cancelAnimationFrame(carouselFrame);
     carouselTimer = 0;
@@ -396,317 +368,125 @@ if (carousel) {
     carousel.classList.remove('cycling');
   }
 
-  function syncCarousel() {
-    playback.hidden = reduceMotion.matches;
-    stopCarousel();
-    if (!canCycle()) return;
-
+  function scheduleCarousel() {
+    stopCarouselClock();
+    if (!canAutoplay()) return;
     carouselFrame = requestAnimationFrame(() => {
       carouselFrame = 0;
-      if (!canCycle()) return;
       carousel.classList.add('cycling');
       carouselTimer = setTimeout(() => showSlide(currentSlide + 1), 7000);
     });
   }
 
-  function setPause(reason, paused) {
-    if (paused) pauseReasons.add(reason);
-    else pauseReasons.delete(reason);
-    syncPlaybackControl();
-    syncCarousel();
-  }
-
   function showSlide(index) {
     currentSlide = (index + slides.length) % slides.length;
-
     slides.forEach((slide, slideIndex) => {
       const active = slideIndex === currentSlide;
       slide.classList.toggle('active', active);
       slide.setAttribute('aria-hidden', String(!active));
     });
-
     slideTabs.forEach((tab, tabIndex) => {
       const active = tabIndex === currentSlide;
       tab.classList.toggle('active', active);
       tab.setAttribute('aria-selected', String(active));
+      tab.tabIndex = active ? 0 : -1;
     });
-
-    counter.textContent = String(currentSlide + 1).padStart(2, '0');
-    syncCarousel();
+    if (counter) counter.textContent = String(currentSlide + 1).padStart(2, '0');
+    scheduleCarousel();
   }
 
-  previous.addEventListener('click', () => showSlide(currentSlide - 1));
-  next.addEventListener('click', () => showSlide(currentSlide + 1));
-  playback.addEventListener('click', () => {
-    setPause('user', !pauseReasons.has('user'));
-  });
+  function setPause(reason, paused) {
+    if (paused) pauseReasons.add(reason);
+    else pauseReasons.delete(reason);
+    syncPlaybackLabel();
+    scheduleCarousel();
+  }
 
+  function pauseForManualInput() {
+    clearTimeout(manualPauseTimer);
+    setPause('manual', true);
+    manualPauseTimer = setTimeout(() => setPause('manual', false), 10000);
+  }
+
+  function chooseSlide(index) {
+    pauseForManualInput();
+    showSlide(index);
+  }
+
+  previous?.addEventListener('click', () => chooseSlide(currentSlide - 1));
+  next?.addEventListener('click', () => chooseSlide(currentSlide + 1));
   slideTabs.forEach((tab, index) => {
-    tab.addEventListener('click', () => {
-      showSlide(Number(tab.dataset.carouselGo));
-    });
-
+    tab.addEventListener('click', () => chooseSlide(index));
     tab.addEventListener('keydown', (event) => {
       if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
       event.preventDefault();
-
-      let targetIndex = index;
-      if (event.key === 'ArrowLeft') targetIndex = (index - 1 + slideTabs.length) % slideTabs.length;
-      if (event.key === 'ArrowRight') targetIndex = (index + 1) % slideTabs.length;
-      if (event.key === 'Home') targetIndex = 0;
-      if (event.key === 'End') targetIndex = slideTabs.length - 1;
-
-      slideTabs[targetIndex].focus();
-      showSlide(targetIndex);
+      let nextIndex = index;
+      if (event.key === 'Home') nextIndex = 0;
+      else if (event.key === 'End') nextIndex = slideTabs.length - 1;
+      else nextIndex = (index + (event.key === 'ArrowRight' ? 1 : -1) + slideTabs.length) % slideTabs.length;
+      chooseSlide(nextIndex);
+      slideTabs[nextIndex].focus();
     });
   });
 
-  carousel.addEventListener('mouseenter', () => {
-    setPause('hover', true);
-  });
-  carousel.addEventListener('mouseleave', () => {
-    setPause('hover', false);
-  });
-  carousel.addEventListener('focusin', () => {
-    setPause('focus', true);
-  });
+  playback.addEventListener('click', () => setPause('user', !pauseReasons.has('user')));
+
+  carousel.addEventListener('mouseenter', () => setPause('hover', true));
+  carousel.addEventListener('mouseleave', () => setPause('hover', false));
+  carousel.addEventListener('focusin', () => setPause('focus', true));
   carousel.addEventListener('focusout', (event) => {
     if (!carousel.contains(event.relatedTarget)) setPause('focus', false);
   });
   carousel.addEventListener('pointerdown', (event) => {
-    if (event.pointerType === 'touch') touchStartX = event.clientX;
-  }, { passive: true });
+    if (event.pointerType !== 'mouse') touchStartX = event.clientX;
+  });
   carousel.addEventListener('pointerup', (event) => {
     if (touchStartX === null) return;
     const distance = event.clientX - touchStartX;
     touchStartX = null;
-    if (Math.abs(distance) > 42) showSlide(currentSlide + (distance < 0 ? 1 : -1));
+    if (Math.abs(distance) > 48) chooseSlide(currentSlide + (distance < 0 ? 1 : -1));
+  });
+  carousel.addEventListener('pointercancel', () => { touchStartX = null; });
+
+  addEventListener('scroll', () => {
+    if (!carouselVisible) return;
+    clearTimeout(scrollPauseTimer);
+    setPause('scroll', true);
+    scrollPauseTimer = setTimeout(() => setPause('scroll', false), 900);
   }, { passive: true });
 
-  const carouselObserver = new IntersectionObserver(([entry]) => {
-    carouselVisible = entry.isIntersecting;
-    syncCarousel();
-  }, { threshold: 0.3 });
+  if ('IntersectionObserver' in window) {
+    const carouselObserver = new IntersectionObserver(([entry]) => {
+      carouselVisible = entry.isIntersecting;
+      setPause('offscreen', !carouselVisible);
+    }, { threshold: 0.28 });
+    carouselObserver.observe(carousel);
+  } else {
+    carouselVisible = true;
+    setPause('offscreen', false);
+  }
 
-  carouselObserver.observe(carousel);
-  document.addEventListener('visibilitychange', syncCarousel);
-  reduceMotion.addEventListener?.('change', syncCarousel);
+  document.addEventListener('visibilitychange', () => setPause('hidden', document.hidden));
+  motionQuery.addEventListener?.('change', (event) => setPause('reduced', event.matches));
+  syncPlaybackLabel();
   showSlide(0);
 }
 
-const canvas = $('#field');
-const context = canvas.getContext('2d', { alpha: true });
-let cosmicWidth = 0;
-let cosmicHeight = 0;
-let cosmicRatio = 1;
-let cosmicMobile = false;
-let cosmicStars = [];
-let cosmicFrame = 0;
-let cosmicLastFrame = 0;
-let cosmicStatic = reduceMotion.matches || saveData;
-const cosmicPointer = { x: 0, y: 0, targetX: 0, targetY: 0 };
-
-function createCosmicStars() {
-  const count = cosmicMobile ? 90 : Math.min(260, Math.floor(cosmicWidth / 5));
-  const maximumRadius = Math.hypot(cosmicWidth, cosmicHeight) * 0.72;
-
-  cosmicStars = Array.from({ length: count }, () => ({
-    angle: Math.random() * Math.PI * 2,
-    radius: (0.08 + Math.pow(Math.random(), 0.66) * 0.92) * maximumRadius,
-    depth: 0.18 + Math.random() * 0.82,
-    size: 0.35 + Math.random() * 1.25,
-    speed: (Math.random() - 0.5) * 0.000025,
-    phase: Math.random() * Math.PI * 2,
-    color: Math.random(),
-  }));
-}
-
-function resizeCosmos() {
-  cosmicWidth = innerWidth;
-  cosmicHeight = innerHeight;
-  cosmicMobile = cosmicWidth <= 760;
-  cosmicRatio = cosmicMobile ? 1 : Math.min(devicePixelRatio || 1, 1.5);
-  canvas.width = Math.round(cosmicWidth * cosmicRatio);
-  canvas.height = Math.round(cosmicHeight * cosmicRatio);
-  canvas.style.width = `${cosmicWidth}px`;
-  canvas.style.height = `${cosmicHeight}px`;
-  context.setTransform(cosmicRatio, 0, 0, cosmicRatio, 0, 0);
-  createCosmicStars();
-
-  if (cosmicStatic) drawCosmos(0);
-}
-
-function cosmicColor(star, alpha) {
-  if (star.color < 0.14) return `rgba(118,140,255,${alpha})`;
-  if (star.color < 0.38) return `rgba(255,174,92,${alpha})`;
-  return `rgba(245,241,232,${alpha})`;
-}
-
-function drawCosmos(time) {
-  if (!cosmicWidth || !cosmicHeight) return;
-
-  const base = Math.min(cosmicWidth, cosmicHeight);
-  const palette = scenePalettes[activeSectionIndex % scenePalettes.length];
-  const lensX = cosmicWidth * (cosmicMobile ? 0.64 : 0.72)
-    + cosmicPointer.x * cosmicWidth * 0.035;
-  const lensY = cosmicHeight * 0.42
-    + cosmicPointer.y * cosmicHeight * 0.028
-    + Math.sin(time * 0.00008) * base * 0.015;
-  const rotation = -0.18 + pageProgress * 0.7;
-
-  context.clearRect(0, 0, cosmicWidth, cosmicHeight);
-  context.save();
-  context.globalCompositeOperation = 'screen';
-
-  cosmicStars.forEach((star) => {
-    const angle = star.angle + time * star.speed + pageProgress * (0.24 + star.depth * 0.58);
-    const radius = star.radius * (0.96 + Math.sin(time * 0.00017 + star.phase) * 0.035);
-    const x = lensX + Math.cos(angle) * radius;
-    const y = lensY + Math.sin(angle) * radius * 0.58;
-    const tangentX = -Math.sin(angle);
-    const tangentY = Math.cos(angle) * 0.58;
-    const trail = 0.6 + scrollEnergy * 24 * star.depth;
-    const alpha = (0.16 + star.depth * 0.48) * (0.82 + Math.sin(time * 0.001 + star.phase) * 0.18);
-
-    context.beginPath();
-    context.moveTo(x - tangentX * trail, y - tangentY * trail);
-    context.lineTo(x + tangentX * star.size, y + tangentY * star.size);
-    context.strokeStyle = cosmicColor(star, alpha);
-    context.lineWidth = star.size * (0.55 + star.depth * 0.55);
-    context.stroke();
-  });
-
-  context.translate(lensX, lensY);
-  context.rotate(rotation);
-  context.scale(1, 0.58);
-
-  for (let index = 0; index < 7; index += 1) {
-    const radius = base * (0.23 + index * 0.115);
-    const start = -1.35 + index * 0.37 + Math.sin(time * 0.00008 + index) * 0.12;
-    const end = start + 1.45 + index * 0.08;
-
-    context.beginPath();
-    context.arc(0, 0, radius, start, end);
-    context.setLineDash([radius * 0.34, radius * 0.11]);
-    context.lineDashOffset = -time * 0.003 * (index % 2 ? 1 : -1);
-    context.strokeStyle = index % 3 === 0
-      ? `rgba(${palette.r},${palette.g},${palette.b},.18)`
-      : index % 3 === 1
-        ? 'rgba(255,174,92,.15)'
-        : 'rgba(118,140,255,.13)';
-    context.lineWidth = index === 1 ? 1.3 : 0.75;
-    context.stroke();
-  }
-
-  context.setLineDash([]);
-  const beam = context.createLinearGradient(-base * 1.1, 0, base * 1.1, 0);
-  beam.addColorStop(0, 'rgba(255,174,92,0)');
-  beam.addColorStop(0.42, 'rgba(255,174,92,.04)');
-  beam.addColorStop(0.5, 'rgba(245,241,232,.34)');
-  beam.addColorStop(0.58, 'rgba(118,140,255,.05)');
-  beam.addColorStop(1, 'rgba(118,140,255,0)');
-  context.fillStyle = beam;
-  context.fillRect(-base * 1.15, -0.8, base * 2.3, 1.6);
-  context.restore();
-
-  const horizon = context.createRadialGradient(
-    lensX,
-    lensY,
-    base * 0.075,
-    lensX,
-    lensY,
-    base * 0.34,
-  );
-  horizon.addColorStop(0, 'rgba(0,0,0,.94)');
-  horizon.addColorStop(0.24, 'rgba(0,0,0,.9)');
-  horizon.addColorStop(0.29, 'rgba(255,174,92,.1)');
-  horizon.addColorStop(0.42, 'rgba(118,140,255,.025)');
-  horizon.addColorStop(1, 'rgba(0,0,0,0)');
-  context.fillStyle = horizon;
-  context.fillRect(
-    lensX - base * 0.36,
-    lensY - base * 0.36,
-    base * 0.72,
-    base * 0.72,
-  );
-}
-
-function renderCosmos(time) {
-  cosmicFrame = 0;
-  if (document.hidden || cosmicStatic) return;
-
-  const frameInterval = 1000 / (cosmicMobile ? 24 : 40);
-
-  if (time - cosmicLastFrame < frameInterval) {
-    cosmicFrame = requestAnimationFrame(renderCosmos);
-    return;
-  }
-
-  cosmicLastFrame = time;
-  cosmicPointer.x += (cosmicPointer.targetX - cosmicPointer.x) * 0.035;
-  cosmicPointer.y += (cosmicPointer.targetY - cosmicPointer.y) * 0.035;
-  scrollEnergy *= 0.91;
-  drawCosmos(time);
-  cosmicFrame = requestAnimationFrame(renderCosmos);
-}
-
-function startCosmos() {
-  if (!cosmicStatic && !cosmicFrame && !document.hidden) {
-    cosmicFrame = requestAnimationFrame(renderCosmos);
-  }
-}
-
-function stopCosmos() {
-  if (cosmicFrame) cancelAnimationFrame(cosmicFrame);
-  cosmicFrame = 0;
-}
-
-if (finePointer) {
-  addEventListener('pointermove', (event) => {
-    cosmicPointer.targetX = clamp(event.clientX / Math.max(cosmicWidth, 1) - 0.5, -0.5, 0.5);
-    cosmicPointer.targetY = clamp(event.clientY / Math.max(cosmicHeight, 1) - 0.5, -0.5, 0.5);
-  }, { passive: true });
-
-  root.addEventListener('pointerleave', () => {
-    cosmicPointer.targetX = 0;
-    cosmicPointer.targetY = 0;
-  });
-}
-
-addEventListener('resize', resizeCosmos);
 document.addEventListener('visibilitychange', () => {
-  if (document.hidden) stopCosmos();
-  else startCosmos();
+  if (document.hidden) cosmos?.pause?.();
+  else cosmos?.resume?.();
 });
 
-reduceMotion.addEventListener?.('change', (event) => {
-  motionEnabled = !event.matches;
-  cosmicStatic = event.matches || saveData;
-  root.classList.toggle('motion-ready', motionEnabled);
-
-  if (!motionEnabled) {
-    rootStyle.setProperty('--bg-y', '0px');
-    parallaxItems.forEach((item) => item.style.setProperty('--parallax-y', '0px'));
-  }
-
+motionQuery.addEventListener?.('change', () => {
+  root.classList.toggle('reduced-motion', motionQuery.matches);
   setupRevealObserver();
-  scheduleScrollMotion();
-
-  if (cosmicStatic) {
-    stopCosmos();
-    drawCosmos(0);
-  } else {
-    startCosmos();
-  }
+  createCosmos();
+  scheduleScrollState();
 });
 
-resizeCosmos();
-setupRevealObserver();
-setActiveSection(0);
-updateScrollMotion();
+root.classList.toggle('reduced-motion', motionQuery.matches);
+updateScrollState();
 
-requestAnimationFrame(() => requestAnimationFrame(alignInitialPosition));
-if (previewVersion) addEventListener('pageshow', alignInitialPosition, { once: true });
-
-if (cosmicStatic) drawCosmos(0);
-else startCosmos();
+requestAnimationFrame(() => {
+  body.classList.add('is-ready');
+});

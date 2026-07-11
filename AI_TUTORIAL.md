@@ -32,14 +32,14 @@
 示例：
 
 ```text
-我需要一张用于个人作品集首页的视觉图，主题是 3D 动态、粒子系统和 AI 创作，画面要有科技感、空间感和情绪张力，适合深色网页背景。
+我需要一张用于个人作品集首页的视觉图，主题是文明尺度的科幻构造与 AI 创作，画面要有宏大空间感和情绪张力，适合深色网页背景。
 ```
 
 然后补充 5 个限制：
 
 - 用途：首页首屏图
 - 比例：16:9 或 21:9
-- 风格：未来感、清爽、精致
+- 风格：宏大科幻、克制、电影感
 - 不要：杂乱文字、真实品牌标志、过度赛博朋克
 - 输出：PNG 或 WebP
 
@@ -48,13 +48,13 @@
 把提示词拆成 7 个模块，后面每次修改只改其中一个模块。
 
 ```text
-主体：抽象 3D 能量核心、粒子场、光线轨道
-场景：深色空间、轻微雾气、远处网格
-材质：玻璃、荧光、半透明体积光
-光线：青绿色主光、蓝紫色边缘光
-构图：中心聚焦、周围粒子向内流动、留出文字区域
-情绪：安静、专注、未来感、好奇
-限制：不要文字、不要人物、不要 logo
+主体：行星尺度的刃形巨构、恒星结构
+场景：深空、恒星日冕、行星地平线
+材质：黑曜石、钛金属、骨白色装甲
+光线：太阳琥珀色辉光、少量离子蓝点缀
+构图：巨构从右侧斜切画面，左侧保留深色负空间
+情绪：宏大、寂静、陌生、令人敬畏
+限制：不要文字、不要人物、不要 logo、不要青绿色赛博朋克杂讯
 ```
 
 ## 03. 生成第一轮方向
@@ -64,13 +64,13 @@
 可直接复制的提示词：
 
 ```text
-An abstract 3D energy core floating in a dark spatial field, surrounded by flowing particle systems and soft orbital light trails, translucent glass material, cyan and violet rim light, subtle volumetric fog, elegant futuristic portfolio hero image, centered composition with empty space for typography, refined, calm, high detail, no text, no logo, no people
+A planet-scale blade megastructure cutting through a stellar corona, obsidian and titanium architecture, solar amber radiance, bone-white highlights, limited ion-blue accents, deep-space scale, cinematic asymmetrical composition with dark negative space on the left for typography, restrained, awe-inspiring, high detail, no text, no logo, no people, no green cyberpunk palette
 ```
 
 中文版本：
 
 ```text
-深色空间中的抽象 3D 能量核心，周围有流动粒子系统和柔和光轨，半透明玻璃材质，青绿色与蓝紫色边缘光，轻微体积雾，适合作品集首页的未来感视觉图，中心聚焦，预留文字区域，精致、安静、高细节，不要文字，不要标志，不要人物
+恒星日冕中穿行的行星尺度刃形巨构，黑曜石与钛金属建筑结构，太阳琥珀色辉光和骨白色高光，少量离子蓝点缀，具有深空尺度。采用电影感非对称构图，在左侧为文字保留深色负空间；克制、宏大、令人敬畏，高细节，不要文字，不要标志，不要人物，不要青绿色赛博朋克配色
 ```
 
 ## 04. 筛选和复盘
@@ -98,13 +98,13 @@ V04：有空间感，但文字区域不够
 例如：
 
 ```text
-Keep the same composition, reduce visual noise, make the center object cleaner, increase empty space on the left side for large typography, keep cyan and violet lighting, no text, no logo
+Keep the same composition, reduce visual noise, clarify the megastructure silhouette, strengthen the dark negative space on the left for large typography, preserve obsidian, titanium, solar amber, bone-white highlights, and limited ion-blue accents, no text, no logo
 ```
 
 中文版本：
 
 ```text
-保持同样构图，减少画面噪点，让中心物体更干净，在左侧增加适合大标题的留白，保留青绿色和蓝紫色光线，不要文字，不要标志
+保持同样构图，减少画面噪点，让巨构轮廓更清晰，加强左侧适合大标题的深色负空间；保留黑曜石、钛金属、太阳琥珀色、骨白色高光和少量离子蓝点缀，不要文字，不要标志
 ```
 
 导出时准备三个尺寸：
@@ -126,7 +126,7 @@ Keep the same composition, reduce visual noise, make the center object cleaner, 
 最后写一段复盘：
 
 ```text
-这次视觉方向使用粒子向中心聚合的结构，表达“想象被编译为运动”。青绿色负责清爽和科技感，蓝紫色负责空间深度。下一版需要减少背景噪点，提高移动端识别度。
+这次视觉方向使用刃形巨构斜切恒星日冕，表达个体面对未知文明尺度时的敬畏。黑曜石与钛金属建立重量，太阳琥珀色负责能量，少量离子蓝拉开空间层次。复盘结论是继续减少背景杂讯，并提高移动端轮廓识别度。
 ```
 
 ## 推荐练习

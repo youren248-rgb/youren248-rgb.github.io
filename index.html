@@ -1,45 +1,410 @@
 <!doctype html>
 <html lang="zh-CN">
 <head>
-  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="description" content="赵卢鑫（好心情）的视觉实验档案：3D 动态、粒子系统与 AI 辅助创作。">
-  <meta name="theme-color" content="#020306"><title>好心情 — 赵卢鑫 / Visual Experiments</title><link rel="stylesheet" href="style.css"><link rel="stylesheet" href="tutorial.css"><link rel="stylesheet" href="effects.css"><link rel="preload" as="image" href="assets/hero-helios-lance.webp">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="赵卢鑫 × GOODMOOD：以视觉判断、动态技术与 AI 协作，将尚未成形的想法变为可感知的世界。">
+  <meta name="theme-color" content="#020306">
+  <title>赵卢鑫 × GOODMOOD — Visual Direction &amp; Future Experiences</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="tutorial.css">
+  <link rel="stylesheet" href="effects.css">
+  <link rel="preload" as="image" href="assets/hero-helios-lance.webp">
 </head>
-<body>
-<canvas id="field" aria-hidden="true"></canvas><div class="atmosphere" aria-hidden="true"></div><div class="grain" aria-hidden="true"></div><div class="progress"><span id="progressBar"></span></div><div class="cursor-aura"></div><div class="cursor-core"></div>
-<header class="nav-shell"><a class="brand" href="#home"><span class="brand-signal"></span><span>GOODMOOD<small>VISUAL FIELD</small></span></a><button class="menu-toggle" type="button" aria-label="打开导航" aria-expanded="false"><span></span><span></span></button><nav><a href="#process">过程</a><a href="#profile">档案</a><a href="#ai-practice">AI 实操</a><a href="#ai-tutorial">教程</a><a href="#works">作品</a><a href="#focus">能力</a><a href="#contact">联系</a></nav><div class="nav-status"><i></i> AVAILABLE FOR IDEAS</div></header>
-<main>
-<section class="hero" id="home"><div class="kinetic" aria-hidden="true"><div>MOTION / PARTICLE / INTELLIGENCE /</div><div>GOOD MOOD / VISUAL EXPERIMENT /</div></div><div class="hero-index">PORTFOLIO / 2026<br>FIELD NOTE / 001</div>
-<div class="hero-copy"><p class="overline hero-enter">ZHAO LUXIN / VISUAL EXPERIMENTS</p><h1 class="hero-enter">将想象，<br><em>编译为运动。</em></h1><p class="english hero-enter">IMAGINATION, COMPILED IN MOTION.</p><p class="hero-lead hero-enter">在三维空间、生成式粒子与 AI 辅助工作流之间，探索画面如何获得时间、秩序与情绪。</p><div class="hero-meta hero-enter"><span>GOODMOOD — CREATIVE IDENTITY</span><span>JIANGSU / CHINA</span></div><div class="hero-actions hero-enter"><a class="button primary" href="#process">ENTER THE FIELD <b>↘</b></a><a class="button secondary" href="#works">VIEW EXPERIMENTS <b>↗</b></a></div></div>
-<div class="field-stage hero-enter"><div class="stage-grid"></div><div class="orbit orbit-a"><i></i></div><div class="orbit orbit-b"><i></i></div><div class="orbit orbit-c"><i></i></div><div class="energy-core"><span>GOOD<br>MOOD</span></div><div class="stage-tag tag-a">FORM / 3D</div><div class="stage-tag tag-b">FIELD / PARTICLES</div><div class="stage-tag tag-c">MIND / AI</div><div class="stage-coordinate">JIANGSU / CHINA<br>REAL-TIME FIELD</div></div><a class="scroll-cue" href="#process"><span></span>SCROLL TO DECODE</a></section>
-<div class="signal-strip"><div>3D MOTION — PARTICLE SYSTEMS — GENERATIVE VISUALS — AI-ASSISTED WORKFLOW — 3D MOTION — PARTICLE SYSTEMS — GENERATIVE VISUALS — AI-ASSISTED WORKFLOW — </div></div>
-<section class="process section" id="process"><div class="section-label reveal"><span>PROCESS NOTE</span><b>001</b></div><div class="process-intro"><div class="reveal"><p class="overline">AI × 3D / FIELD MANUAL</p><h2>从一个意象，<br>到一片会呼吸的<strong>粒子场。</strong></h2></div><p class="reveal">一套可复用的三步动态视觉方法：先把情绪翻译成规则，再让规则生成变化，最后通过镜头完成表达。方法不是答案，它只是让直觉变得可执行。</p></div>
-<div class="protocol reveal"><div class="protocol-nav" role="tablist"><button class="protocol-tab active" data-step="0" role="tab" aria-selected="true"><b>01</b><span>TRANSLATE<small>将情绪参数化</small></span></button><button class="protocol-tab" data-step="1" role="tab" aria-selected="false"><b>02</b><span>CONSTRUCT<small>建立竞争力场</small></span></button><button class="protocol-tab" data-step="2" role="tab" aria-selected="false"><b>03</b><span>DIRECT<small>导演一个循环</small></span></button></div>
-<div class="protocol-screen"><div class="scanline"></div><article class="protocol-panel active" data-panel="0"><div class="panel-id">STEP_01 / INPUT</div><h3>先定义物理倾向，<br>再打开软件。</h3><p>用一句话描述画面的感受，并提取三个可以被控制的变量：<strong>方向、密度、速度</strong>。模糊感受由此转化为视觉条件。</p><div class="parameter-map"><span>DIRECTION <b>RADIAL ATTRACTION</b></span><span>DENSITY <b>SPARSE DISTRIBUTION</b></span><span>VELOCITY <b>SLOW / ORGANIC</b></span></div><button class="copy-trigger" data-copy="描述一个情绪意象，并将它转译为方向、密度、速度三个可控制的视觉参数。">COPY STARTER PROMPT <span>⌘</span></button></article>
-<article class="protocol-panel" data-panel="1" hidden><div class="panel-id">STEP_02 / SYSTEM</div><h3>让秩序与噪声，<br>彼此竞争。</h3><p>在 Blender Geometry Nodes 或 Three.js 中组合三种基础作用力。先验证运动逻辑，再添加颜色与辉光，避免效果掩盖结构问题。</p><div class="force-diagram"><span>ATTRACTION<small>建立视觉中心</small></span><i>×</i><span>NOISE<small>打破机械秩序</small></span><i>×</i><span>DAMPING<small>控制运动节奏</small></span></div></article>
-<article class="protocol-panel" data-panel="2" hidden><div class="panel-id">STEP_03 / OUTPUT</div><h3>真正高级的循环，<br>让人忘记它曾结束。</h3><p>镜头只保留一个主运动，粒子变化作为次级运动。输出 6–8 秒无缝循环，重点检查首尾两帧的速度、方向与密度是否连续。</p><div class="loop-meter"><span></span><i>00:00</i><i>00:08</i></div><div class="output-meta">OUTPUT / SEAMLESS LOOP · PARAMETER MAP · PROCESS NOTES</div></article></div></div><div class="process-footer reveal"><span>TOOLS / BLENDER · THREE.JS · AI-ASSISTED IDEATION</span><a href="#focus">EXPLORE THE METHOD ↘</a></div></section>
-<section class="profile section" id="profile"><div class="section-label reveal"><span>PROFILE</span><b>002</b></div><div class="profile-grid"><h2 class="reveal">在秩序与失控之间，<br>构建<strong>视觉引力。</strong></h2><div class="profile-copy reveal"><p>赵卢鑫，以「好心情」为创作身份，来自 <b>Jiangsu / China</b>。</p><p>我在 3D 动态、粒子系统与 AI 辅助创意流程之间工作，把抽象念头拆解为形体、节奏与光，再重新组织成具有时间感的画面。比起追逐固定风格，我更关心：<em>技术如何不露痕迹地抵达情绪。</em></p><p>「好心情」并非简单的情绪标签，而是我的创作坐标——保持敏感，持续试验，让每一次技术探索最终回到人的感受。</p></div></div><div class="profile-stats reveal"><div><span>BASE</span><b>JIANGSU</b><small>JIANGSU / CN</small></div><div><span>FORM</span><b>3D MOTION</b><small>SPACE / TIME</small></div><div><span>FIELD</span><b>PARTICLES</b><small>ORDER / ENERGY</small></div><div><span>MIND</span><b>AI WORKFLOW</b><small>IDEA / SYSTEM</small></div></div></section>
-<section class="ai-practice section" id="ai-practice"><div class="section-label reveal"><span>PRACTICAL AI / CV</span><b>003</b></div><div class="practice-head"><div class="reveal"><p class="overline">FROM IDEA TO DELIVERABLE</p><h2>让 AI 参与生产，<br>而不只是<strong>参与聊天。</strong></h2></div><p class="reveal">我把 AI 当作创作工作台：用于梳理需求、建立视觉方向、快速验证方案，再由我完成选择、调整与最终交付。以下是可以直接落地的日常实操。</p></div><div class="practice-grid"><article class="practice-card reveal"><div class="practice-top"><span>01 / WEB IMAGE</span><b>网站视觉图</b></div><h3>从一句需求到首屏视觉</h3><p>提炼网站气质、色彩和构图关键词，生成多版视觉方向，再针对桌面端与手机端重新裁切、压缩并统一风格。</p><ol><li>需求与参考拆解</li><li>提示词和构图迭代</li><li>PNG / WebP 页面适配</li></ol><div class="deliverables"><span>HERO IMAGE</span><span>BANNER</span><span>BACKGROUND</span></div></article><article class="practice-card reveal"><div class="practice-top"><span>02 / WEBSITE</span><b>个人网站制作</b></div><h3>把内容变成可访问的网页</h3><p>使用 GPT 协助整理信息架构与文案，由我完成页面取舍，并使用原生 HTML、CSS、JavaScript 制作响应式网站。</p><ol><li>栏目与内容结构</li><li>视觉设计和交互</li><li>移动端适配与发布</li></ol><div class="deliverables"><span>LANDING PAGE</span><span>PORTFOLIO</span><span>GITHUB PAGES</span></div></article><article class="practice-card reveal"><div class="practice-top"><span>03 / CONTENT</span><b>内容视觉生产</b></div><h3>用同一套语言持续输出</h3><p>围绕主题完成标题、封面、配色与系列化版式，让社交媒体图片、教程配图和项目展示保持一致的视觉识别。</p><ol><li>主题与受众分析</li><li>封面和配图生成</li><li>系列模板与复盘</li></ol><div class="deliverables"><span>COVER</span><span>SOCIAL POST</span><span>TUTORIAL ART</span></div></article></div><div class="practice-note reveal"><span>WORK PRINCIPLE</span><p>AI 提供速度与可能性；审美、事实核验和最终责任，仍然由我完成。</p></div></section><section class="works section" id="works"><div class="section-label reveal"><span>CINEMATIC ARCHIVE</span><b>004</b></div><div class="works-heading reveal"><h2>目击一个<br><strong>尚未存在的世界。</strong></h2><p>三组巨构文明视觉实验。不是练习占位，而是完整的世界观、尺度、材质与光线判断。</p></div><div id="work-showcase" class="work-showcase reveal" data-carousel aria-roledescription="carousel" aria-label="宏大科幻视觉作品轮播"><div class="work-slides"><figure class="work-slide active" data-slide="0" aria-hidden="false"><img src="assets/work-eclipse-engine.webp" alt="恒星遮蔽引擎与环形轨道巨构" decoding="async"><figcaption><span>001 / ORBITAL MEGASTRUCTURE</span><h3>ECLIPSE ENGINE</h3><p>恒星边缘的文明尺度机器。</p></figcaption></figure><figure class="work-slide" data-slide="1" aria-hidden="true"><img src="assets/work-gravitational-cathedral.webp" alt="由钛金属巨柱构成的引力圣殿" loading="lazy" decoding="async"><figcaption><span>002 / ARCHITECTURAL VOID</span><h3>GRAVITATIONAL CATHEDRAL</h3><p>以光为中轴的行星级建筑。</p></figcaption></figure><figure class="work-slide" data-slide="2" aria-hidden="true"><img src="assets/work-terminus-tide.webp" alt="跨越黑色晶体海面的行星级巨构" loading="lazy" decoding="async"><figcaption><span>003 / PLANETARY HORIZON</span><h3>TERMINUS TIDE</h3><p>结构、风暴与地平线的终点。</p></figcaption></figure></div><div class="work-carousel-ui"><div class="work-counter"><b>01</b><span>/ 03</span></div><div class="work-progress" aria-hidden="true"><span></span></div><div class="work-controls"><button type="button" data-carousel-prev aria-label="上一张作品">←</button><button type="button" data-carousel-next aria-label="下一张作品">→</button></div></div><div class="work-tabs" role="tablist" aria-label="选择作品"><button type="button" class="active" data-carousel-go="0" role="tab" aria-selected="true">ECLIPSE</button><button type="button" data-carousel-go="1" role="tab" aria-selected="false">CATHEDRAL</button><button type="button" data-carousel-go="2" role="tab" aria-selected="false">TERMINUS</button></div></div></section>
-<section class="focus section" id="focus">
-  <div class="section-label reveal"><span>CREATIVE FOCUS</span><b>005</b></div>
-  <div class="focus-heading reveal"><p class="overline">CAPABILITY AS A SYSTEM</p><h2>不是堆叠工具，<br>而是建立<strong>方法。</strong></h2></div>
-  <div class="focus-cards">
-    <article class="reveal"><span class="card-num">01 / FORM</span><div class="form-object"><i></i><i></i><i></i></div><h3>3D MOTION</h3><p>形体不是最终结果，而是运动发生的条件。通过空间、镜头与节奏，让抽象概念获得身体。</p><small>MODELING · CAMERA · MOTION</small></article>
-    <article class="reveal"><span class="card-num">02 / FIELD</span><div class="particle-object"></div><h3>PARTICLE SYSTEMS</h3><p>粒子不是画面的装饰，而是把秩序、能量与时间可视化的方法。</p><small>FORCE · NOISE · SIMULATION</small></article>
-    <article class="reveal"><span class="card-num">03 / INTELLIGENCE</span><div class="mind-object"><i>AI</i></div><h3>AI WORKFLOW</h3><p>AI 不是替代思考的捷径，而是扩大探索半径、加速验证想法的协作系统。</p><small>PROMPT · SYNTHESIS · DECISION</small></article>
+<body class="site-home">
+  <a class="skip-link" href="#main-content">跳到主要内容</a>
+
+  <div class="cosmos-layer" aria-hidden="true">
+    <canvas id="cosmos" class="cosmos-field" data-cosmos></canvas>
+    <div class="atmosphere"></div>
+    <div class="grain"></div>
   </div>
-</section>
-<section class="ai-tutorial section" id="ai-tutorial">
-  <div class="section-label reveal"><span>AI TUTORIAL</span><b>006</b></div>
-  <div class="tutorial-head"><div class="reveal"><p class="overline">BEGINNER WORKFLOW / 45 MIN</p><h2>从零开始，<br>做一套<strong>AI 创作流程。</strong></h2></div><p class="reveal">这份教程不是堆工具名单，而是把需求、提示词、生成、筛选、修图和发布整理成一条可以重复使用的工作流。适合想用 AI 做网站视觉、封面图、作品集内容的人。</p></div>
-  <div class="tutorial-board reveal">
-    <div class="tutorial-map">
-      <article><span>01</span><h3>定义任务</h3><p>先写清楚受众、用途、比例、风格边界和交付格式，避免一开始就陷入随机试图。</p></article>
-      <article><span>02</span><h3>拆提示词</h3><p>用“主体、场景、材质、光线、构图、情绪、限制”七项组织提示词。</p></article>
-      <article><span>03</span><h3>生成与筛选</h3><p>每轮只改一个变量，保留失败版本的原因，把直觉变成可复盘的判断。</p></article>
-      <article><span>04</span><h3>整理交付</h3><p>压缩图片、统一命名、记录参数，并把最终图放进网站或社交内容模板。</p></article>
+  <div class="progress" aria-hidden="true"><span id="progressBar"></span></div>
+  <div class="cursor-aura" aria-hidden="true"></div>
+  <div class="cursor-core" aria-hidden="true"></div>
+
+  <header class="nav-shell">
+    <a class="brand" href="#home" aria-label="GOODMOOD，返回首页">
+      <span class="brand-signal" aria-hidden="true"></span>
+      <span>GOODMOOD<small>赵卢鑫 / VISUAL FIELD</small></span>
+    </a>
+    <button class="menu-toggle" type="button" aria-label="打开导航" aria-expanded="false">
+      <span></span><span></span>
+    </button>
+    <nav aria-label="主要导航">
+      <a href="#manifesto">宣言</a>
+      <a href="#works">作品</a>
+      <a href="#value">价值</a>
+      <a href="#process">方法</a>
+      <a href="#profile">关于</a>
+      <a href="#ai-tutorial">教程</a>
+      <a href="#contact">联系</a>
+    </nav>
+    <div class="nav-status"><i></i> OPEN TO COLLABORATION</div>
+  </header>
+
+  <main id="main-content">
+    <section class="hero identity-hero" id="home" data-cosmos-scene="0" aria-labelledby="hero-title">
+      <div class="hero-depth hero-depth--mid" aria-hidden="true">
+        <img src="assets/hero-helios-lance.webp" alt="" fetchpriority="high" decoding="async">
+      </div>
+      <div class="kinetic" aria-hidden="true">
+        <div>AUTHOR / DIRECTION / MOTION / INTELLIGENCE /</div>
+        <div>GOODMOOD / ZHAO LUXIN / VISUAL GRAVITY /</div>
+      </div>
+      <div class="hero-index">IDENTITY FIELD / 001<br>TRANSMISSION / ACTIVE</div>
+
+      <div class="hero-copy">
+        <div class="identity-lockup hero-enter" aria-label="赵卢鑫与 GOODMOOD">
+          <p class="identity-name">赵卢鑫</p>
+          <span aria-hidden="true">×</span>
+          <p class="identity-brand">GOODMOOD</p>
+        </div>
+        <p class="overline hero-enter">VISUAL DIRECTOR / CREATIVE TECHNOLOGIST</p>
+
+        <!-- EDITABLE COPY: 用你的最终个人宣言替换下方标题。 -->
+        <h1 class="hero-enter" id="hero-title">我不制造背景。<br><em>我建立引力。</em></h1>
+        <!-- EDITABLE COPY: 用一句话说明你为客户或合作方创造的核心价值。 -->
+        <p class="hero-lead hero-enter">让概念、技术与情绪围绕一个清晰判断进入轨道，最终成为无法忽视的视觉体验。</p>
+
+        <div class="value-equation hero-enter" aria-label="个人价值公式">
+          <!-- EDITABLE COPY: 可按你的真实工作方式改写价值公式。 -->
+          <span>审美判断</span><i>×</i><span>技术实现</span><i>×</i><span>AI 协作</span><b>= 可感知的价值</b>
+        </div>
+
+        <div class="hero-facts hero-enter" aria-label="个人事实与证据">
+          <article>
+            <span>FACT / 01</span>
+            <h2>我创造什么</h2>
+            <!-- EDITABLE COPY: 替换为一个可核验的代表性成果，不要填写虚构指标。 -->
+            <p>把个人创作方向整理成一套可访问、可交互、已上线的完整网站体验。</p>
+          </article>
+          <article>
+            <span>FACT / 02</span>
+            <h2>我解决什么</h2>
+            <!-- EDITABLE COPY: 替换为你最擅长解决的真实问题。 -->
+            <p>把模糊的气质与情绪，转化为清晰的构图、动态和交付路径。</p>
+          </article>
+          <article>
+            <span>FACT / 03</span>
+            <h2>为什么是我</h2>
+            <!-- EDITABLE COPY: 替换为客户选择你的真实理由或合作反馈。 -->
+            <p>从视觉判断到页面实现由同一套方向贯穿，减少概念在落地中的损耗。</p>
+          </article>
+        </div>
+
+        <div class="hero-actions hero-enter">
+          <a class="button primary" href="#works">查看代表作 <b>↘</b></a>
+          <a class="button secondary" href="#contact">发起合作 <b>↗</b></a>
+        </div>
+      </div>
+
+      <div class="identity-sigil hero-enter">
+        <svg class="goodmood-mark" viewBox="0 0 640 640" role="img" aria-labelledby="mark-title mark-desc">
+          <title id="mark-title">GOODMOOD 轨道印记</title>
+          <desc id="mark-desc">由字母 G 与 M 的几何骨架、交错行星轨道、断裂巨构和发光引力核心组成的抽象个人印记。</desc>
+          <g class="mark-orbits" fill="none">
+            <ellipse cx="320" cy="320" rx="264" ry="118" transform="rotate(-24 320 320)"></ellipse>
+            <ellipse cx="320" cy="320" rx="234" ry="86" transform="rotate(62 320 320)"></ellipse>
+            <path d="M85 217A272 272 0 0 1 444 73"></path>
+            <path d="M555 423A272 272 0 0 1 196 567"></path>
+          </g>
+          <g class="mark-megastructure" fill="none">
+            <path d="M135 248L220 191L292 211"></path>
+            <path d="M348 428L431 450L511 391"></path>
+            <path d="M182 462L155 407L171 352"></path>
+            <path d="M460 176L490 233L473 286"></path>
+          </g>
+          <g class="mark-gm" fill="none">
+            <path d="M302 223C277 190 217 187 180 218C131 259 137 374 192 410C230 435 286 418 307 380V325H235"></path>
+            <path d="M345 414V224L413 330L481 224V414"></path>
+          </g>
+          <g class="mark-fragments">
+            <path d="M104 324L132 311L128 346Z"></path>
+            <path d="M525 282L554 300L525 315Z"></path>
+            <path d="M306 69L326 103L286 99Z"></path>
+            <path d="M337 571L316 538L356 540Z"></path>
+          </g>
+          <g class="mark-core">
+            <circle cx="320" cy="320" r="52"></circle>
+            <circle cx="320" cy="320" r="17"></circle>
+            <path d="M320 246V276M320 364V394M246 320H276M364 320H394"></path>
+          </g>
+        </svg>
+        <p><span>GOODMOOD / ORBITAL SIGNATURE</span><b>AUTHOR SIGNAL DETECTED</b></p>
+      </div>
+
+      <a class="scroll-cue" href="#manifesto"><span></span>SCROLL TO ENTER</a>
+    </section>
+
+    <div class="signal-strip" aria-hidden="true">
+      <div>赵卢鑫 — GOODMOOD — VISUAL DIRECTION — CREATIVE TECHNOLOGY — HUMAN JUDGMENT — 赵卢鑫 — GOODMOOD — VISUAL DIRECTION — CREATIVE TECHNOLOGY — HUMAN JUDGMENT — </div>
     </div>
-    <aside class="tutorial-panel"><span>FEATURED GUIDE</span><div><h3>AI 视觉创作入门教程</h3><p>完整教程已经放进仓库，包含 6 个步骤、可直接复制的提示词模板，以及一个网站首屏视觉练习。</p></div><a class="button primary" href="ai-tutorial.html">READ THE TUTORIAL <b>↗</b></a></aside>
-  </div>
-</section>
-<section class="contact" id="contact"><div class="contact-copy reveal"><p class="overline">NEXT / COLLABORATION</p><h2>让技术退后，<br><strong>让感受发生。</strong></h2><p>关于 3D 动态、粒子视觉、AI 创作流程，或任何尚未被定义的想法——欢迎找到我。</p><div class="contact-signature">ZHAO LUXIN <span>/ GOODMOOD</span></div><div class="location">BASED IN JIANGSU / CHINA</div></div><figure class="qr-card reveal"><div class="qr-scan"></div><img src="assets/wechat.jpg" alt="赵卢鑫的微信二维码"><figcaption><span>WECHAT / CONNECT</span><b>SCAN TO START A CONVERSATION ↗</b></figcaption></figure></section></main><footer><span>© <b id="year"></b> ZHAO LUXIN</span><span>DESIGNED IN JIANGSU / BUILT WITH CURIOSITY</span><a href="#home">BACK TO ORIGIN ↑</a></footer><div class="toast" role="status">PROMPT COPIED</div><script src="script.js"></script></body></html>
+
+    <section class="manifesto section" id="manifesto" data-cosmos-scene="1" aria-labelledby="manifesto-title">
+      <div class="section-label reveal"><span>PERSONAL MANIFESTO</span><b>002</b></div>
+      <div class="manifesto-grid">
+        <div class="manifesto-statement reveal">
+          <p class="overline">THIS IS MY POSITION</p>
+          <!-- EDITABLE COPY: 这里是首页之后最重要的个人立场，可整段替换。 -->
+          <h2 id="manifesto-title">世界不缺更多画面。<br>缺的是一个<strong>值得相信的判断。</strong></h2>
+        </div>
+        <div class="manifesto-copy reveal">
+          <!-- EDITABLE COPY: 用你自己的经历、野心和工作观替换以下两段。 -->
+          <p>我把视觉当作一种决策：删掉噪声，识别真正重要的情绪，再为它建立足够精确的形体、节奏与空间。</p>
+          <p>GOODMOOD 不是装饰性的署名，而是我的创作坐标。每一个作品，都应该让人感到某种以前没有被说清楚的东西。</p>
+        </div>
+      </div>
+      <blockquote class="manifesto-quote reveal">
+        <!-- EDITABLE COPY: 替换为最能代表你的短句。 -->
+        <p>“技术应该消失在体验背后，但我的判断必须被看见。”</p>
+        <cite>赵卢鑫 / GOODMOOD</cite>
+      </blockquote>
+    </section>
+
+    <section class="works section works-odyssey" id="works" data-cosmos-scene="2" aria-labelledby="works-title">
+      <div class="section-label reveal"><span>SELECTED WORLDS</span><b>003</b></div>
+      <div class="works-heading reveal">
+        <div>
+          <p class="overline">MY WORK / MY DECISIONS</p>
+          <h2 id="works-title">不是展示图片。<br>是展示我如何<strong>定义一个世界。</strong></h2>
+        </div>
+        <p>三组科幻视觉实验，用尺度、材质、构图与光线回答同一个问题：一个尚不存在的世界，如何在第一眼就拥有可信度。</p>
+      </div>
+
+      <div class="work-showcase-track">
+        <div id="work-showcase" class="work-showcase work-showcase-sticky reveal" data-carousel aria-roledescription="carousel" aria-label="赵卢鑫的三组代表视觉作品">
+          <div class="work-slides" aria-live="off">
+            <figure class="work-slide active" id="work-slide-1" data-slide="0" aria-hidden="false" aria-labelledby="work-title-1">
+              <div class="work-visual">
+                <img src="assets/work-eclipse-engine.webp" alt="恒星遮蔽引擎与环形轨道巨构" decoding="async">
+                <span class="work-visual-index" aria-hidden="true">001</span>
+              </div>
+              <figcaption>
+                <span>001 / ORBITAL MEGASTRUCTURE</span>
+                <h3 id="work-title-1">ECLIPSE ENGINE</h3>
+                <p>恒星边缘的文明尺度机器。</p>
+                <dl class="work-evidence">
+                  <div><dt>我负责什么</dt><!-- EDITABLE COPY --><dd>完成概念方向、世界观、生成筛选，以及适配网页的最终视觉资产。</dd></div>
+                  <div><dt>为什么这样判断</dt><!-- EDITABLE COPY --><dd>用恒星遮蔽建立唯一视觉中心，让环形结构在第一眼说明文明尺度。</dd></div>
+                </dl>
+              </figcaption>
+            </figure>
+
+            <figure class="work-slide" id="work-slide-2" data-slide="1" aria-hidden="true" aria-labelledby="work-title-2">
+              <div class="work-visual">
+                <img src="assets/work-gravitational-cathedral.webp" alt="由钛金属巨柱构成的引力圣殿" loading="lazy" decoding="async">
+                <span class="work-visual-index" aria-hidden="true">002</span>
+              </div>
+              <figcaption>
+                <span>002 / ARCHITECTURAL VOID</span>
+                <h3 id="work-title-2">GRAVITATIONAL CATHEDRAL</h3>
+                <p>以光为中轴的行星级建筑。</p>
+                <dl class="work-evidence">
+                  <div><dt>我负责什么</dt><!-- EDITABLE COPY --><dd>完成空间概念、材质与光线语言，并把它纳入统一的系列视觉。</dd></div>
+                  <div><dt>为什么这样判断</dt><!-- EDITABLE COPY --><dd>让轴向光成为建筑中轴，以留白和重复结构制造肃穆与尺度。</dd></div>
+                </dl>
+              </figcaption>
+            </figure>
+
+            <figure class="work-slide" id="work-slide-3" data-slide="2" aria-hidden="true" aria-labelledby="work-title-3">
+              <div class="work-visual">
+                <img src="assets/work-terminus-tide.webp" alt="跨越黑色晶体海面的行星级巨构" loading="lazy" decoding="async">
+                <span class="work-visual-index" aria-hidden="true">003</span>
+              </div>
+              <figcaption>
+                <span>003 / PLANETARY HORIZON</span>
+                <h3 id="work-title-3">TERMINUS TIDE</h3>
+                <p>结构、风暴与地平线的终点。</p>
+                <dl class="work-evidence">
+                  <div><dt>我负责什么</dt><!-- EDITABLE COPY --><dd>完成地平线构图、氛围方向、叙事标题与响应式展示资产。</dd></div>
+                  <div><dt>为什么这样判断</dt><!-- EDITABLE COPY --><dd>压低地平线并保留大面积黑暗，让风暴和巨构拥有未知重量。</dd></div>
+                </dl>
+              </figcaption>
+            </figure>
+          </div>
+
+          <div class="work-carousel-ui">
+            <div class="work-counter" aria-live="polite"><b>01</b><span>/ 03</span></div>
+            <div class="work-progress" aria-hidden="true"><span></span></div>
+            <div class="work-controls">
+              <button type="button" data-carousel-prev aria-label="上一张作品">←</button>
+              <button type="button" data-carousel-next aria-label="下一张作品">→</button>
+            </div>
+          </div>
+          <div class="work-tabs" role="tablist" aria-label="选择代表作品">
+            <button type="button" class="active" data-carousel-go="0" role="tab" aria-controls="work-slide-1" aria-selected="true">ECLIPSE</button>
+            <button type="button" data-carousel-go="1" role="tab" aria-controls="work-slide-2" aria-selected="false">CATHEDRAL</button>
+            <button type="button" data-carousel-go="2" role="tab" aria-controls="work-slide-3" aria-selected="false">TERMINUS</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="value section" id="value" data-cosmos-scene="3" aria-labelledby="value-title">
+      <div class="section-label reveal"><span>COLLABORATION VALUE</span><b>004</b></div>
+      <div class="value-heading reveal">
+        <p class="overline">WHY WORK WITH ME</p>
+        <h2 id="value-title">你得到的不只是一张图。<br>而是一套能让想法<strong>被看见、被相信、被记住</strong>的视觉判断。</h2>
+      </div>
+      <div class="value-grid">
+        <article class="value-card reveal">
+          <span>01 / DEFINE</span>
+          <h3>在制作之前，先找对问题</h3>
+          <p>把模糊需求压缩为清晰的视觉命题，确定观众、情绪、尺度和优先级，让后续探索始终围绕目标发生。</p>
+          <!-- EDITABLE COPY: 可补充一条真实案例证明你的需求定义能力。 -->
+          <small>现有证明 / 本站从个人定位开始重组全部信息层级</small>
+        </article>
+        <article class="value-card reveal">
+          <span>02 / BUILD</span>
+          <h3>让审美与技术成为同一件事</h3>
+          <p>从构图、材质和光线，到动态、交互与 AI 工作流，由同一套视觉判断贯穿，避免概念在落地中失真。</p>
+          <!-- EDITABLE COPY: 可补充一项你真实掌握的关键技术或交付。 -->
+          <small>现有证明 / 视觉、实时动效与响应式页面统一落地</small>
+        </article>
+        <article class="value-card reveal">
+          <span>03 / DELIVER</span>
+          <h3>让作品离开概念图，真正抵达场景</h3>
+          <p>考虑页面比例、响应式呈现、性能和发布，把视觉方向整理为可以被使用、维护和继续扩展的结果。</p>
+          <!-- EDITABLE COPY: 可补充一个真实上线结果或合作反馈。 -->
+          <small>现有证明 / 原生网站已完成部署并可持续迭代</small>
+        </article>
+      </div>
+      <div class="value-cta reveal">
+        <!-- EDITABLE COPY: 用一句更具体的合作邀请替换。 -->
+        <p>如果你的想法很难被一句常规需求描述清楚，我们可能正适合一起工作。</p>
+        <a class="button primary" href="#contact">告诉我你的想法 <b>↗</b></a>
+      </div>
+    </section>
+
+    <section class="process section" id="process" data-cosmos-scene="3" aria-labelledby="process-title">
+      <div class="section-label reveal"><span>WORKING METHOD</span><b>005</b></div>
+      <div class="process-intro">
+        <div class="reveal">
+          <p class="overline">JUDGMENT × SYSTEM × DELIVERY</p>
+          <h2 id="process-title">灵感不是事故。<br>我把它变成一套<strong>可执行的方法。</strong></h2>
+        </div>
+        <p class="reveal">从需求到最终体验，我用三个阶段控制方向：先定义真正的问题，再建立可验证的视觉系统，最后为真实场景完成表达与交付。</p>
+      </div>
+
+      <div class="protocol reveal">
+        <div class="protocol-nav" role="tablist" aria-label="工作方法阶段">
+          <button class="protocol-tab active" id="method-tab-1" data-step="0" role="tab" aria-controls="method-panel-1" aria-selected="true"><b>01</b><span>DEFINE<small>识别真正的问题</small></span></button>
+          <button class="protocol-tab" id="method-tab-2" data-step="1" role="tab" aria-controls="method-panel-2" aria-selected="false"><b>02</b><span>CONSTRUCT<small>建立视觉系统</small></span></button>
+          <button class="protocol-tab" id="method-tab-3" data-step="2" role="tab" aria-controls="method-panel-3" aria-selected="false"><b>03</b><span>DELIVER<small>让体验真正发生</small></span></button>
+        </div>
+        <div class="protocol-screen">
+          <div class="scanline" aria-hidden="true"></div>
+          <article class="protocol-panel active" id="method-panel-1" data-panel="0" role="tabpanel" aria-labelledby="method-tab-1">
+            <div class="panel-id">PHASE_01 / DIRECTION</div>
+            <h3>先决定什么必须被感受到，<br>再决定画面长什么样。</h3>
+            <p>梳理受众、使用场景和情绪目标，把抽象形容词转化为可以判断的视觉边界：尺度、密度、节奏、材质与光。</p>
+            <div class="parameter-map"><span>AUDIENCE <b>WHO MUST FEEL IT</b></span><span>EMOTION <b>WHAT MUST REMAIN</b></span><span>BOUNDARY <b>WHAT MUST DISAPPEAR</b></span></div>
+          </article>
+          <article class="protocol-panel" id="method-panel-2" data-panel="1" role="tabpanel" aria-labelledby="method-tab-2" hidden>
+            <div class="panel-id">PHASE_02 / SYSTEM</div>
+            <h3>用多种路径探索，<br>用同一套标准做决定。</h3>
+            <p>组合 3D、粒子、生成式视觉与 AI 辅助工作流，快速建立方向样本。每次迭代只改变关键变量，让选择有依据而不是靠运气。</p>
+            <div class="force-diagram"><span>DIRECTION<small>控制世界观</small></span><i>×</i><span>PROTOTYPE<small>验证体验</small></span><i>×</i><span>DECISION<small>收敛系统</small></span></div>
+          </article>
+          <article class="protocol-panel" id="method-panel-3" data-panel="2" role="tabpanel" aria-labelledby="method-tab-3" hidden>
+            <div class="panel-id">PHASE_03 / REALITY</div>
+            <h3>最后一公里不是导出。<br>是让价值抵达真实场景。</h3>
+            <p>针对网站、内容或动态媒介完成比例、节奏、性能和响应式调整，同时整理可继续使用的资产与规则。</p>
+            <div class="output-meta">OUTPUT / VISUAL SYSTEM · MOTION ASSETS · RESPONSIVE EXPERIENCE · DELIVERY NOTES</div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="profile section" id="profile" data-cosmos-scene="4" aria-labelledby="profile-title">
+      <div class="section-label reveal"><span>ABOUT THE AUTHOR</span><b>006</b></div>
+      <div class="profile-grid">
+        <div class="profile-heading reveal">
+          <p class="overline">ZHAO LUXIN / GOODMOOD</p>
+          <h2 id="profile-title">我的价值不在工具列表里。<br>而在每一次<strong>取舍与判断</strong>里。</h2>
+        </div>
+        <div class="profile-copy reveal">
+          <!-- EDITABLE COPY: 用你的真实个人经历、背景和目标替换以下简介。 -->
+          <p>我是赵卢鑫，以 GOODMOOD 为创作身份，常驻 <b>Jiangsu / China</b>。</p>
+          <p>我在视觉方向、3D 动态、粒子系统与 AI 辅助创作之间工作，把尚未成形的意象拆解为形体、节奏与光，再重新组织为具有时间感和情绪张力的体验。</p>
+          <p>我关心的不只是画面是否“好看”，而是它能否为一个想法建立独有的气场，并在真实的媒介里持续成立。</p>
+        </div>
+      </div>
+
+      <div class="capability-system reveal" aria-labelledby="capability-title">
+        <div class="capability-intro">
+          <p class="overline">CAPABILITY AS ONE SYSTEM</p>
+          <h3 id="capability-title">方向、动态与智能，<br>共同服务一个结果。</h3>
+        </div>
+        <div class="focus-cards">
+          <article>
+            <span class="card-num">01 / DIRECTION</span>
+            <h4>VISUAL JUDGMENT</h4>
+            <p>提炼核心感受，建立世界观、构图、色彩与材质边界，让表达拥有唯一方向。</p>
+            <small>CONCEPT · ART DIRECTION · SYSTEM</small>
+          </article>
+          <article>
+            <span class="card-num">02 / MOTION</span>
+            <h4>3D &amp; GENERATIVE</h4>
+            <p>用空间、镜头、粒子与程序化运动，让静态概念获得尺度、时间和身体。</p>
+            <small>FORM · CAMERA · PARTICLES</small>
+          </article>
+          <article>
+            <span class="card-num">03 / INTELLIGENCE</span>
+            <h4>AI WORKFLOW</h4>
+            <p>让 AI 参与研究、发散与验证，由我完成事实核验、审美决策和最终交付。</p>
+            <small>RESEARCH · SYNTHESIS · DECISION</small>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="ai-tutorial section tutorial-resource" id="ai-tutorial" data-cosmos-scene="4" aria-labelledby="tutorial-title">
+      <div class="section-label reveal"><span>OPEN RESOURCE</span><b>007</b></div>
+      <div class="tutorial-resource-grid reveal">
+        <div>
+          <p class="overline">A PRACTICAL AI WORKFLOW / 45 MIN</p>
+          <h2 id="tutorial-title">我如何把 AI，<br>变成一条<strong>可复用的创作流程。</strong></h2>
+          <p>从定义任务、组织提示词、生成筛选到整理交付。这是一份面向初学者的公开教程，也是我工作方法的一个可拆解切片。</p>
+        </div>
+        <aside class="tutorial-card">
+          <span>SECONDARY / RESOURCE</span>
+          <h3>AI 视觉创作入门教程</h3>
+          <ul>
+            <li>6 个连续步骤</li>
+            <li>可直接修改的提示词骨架</li>
+            <li>网站首屏视觉练习</li>
+          </ul>
+          <a class="button secondary" href="ai-tutorial.html">阅读完整教程 <b>↗</b></a>
+        </aside>
+      </div>
+    </section>
+
+    <section class="contact" id="contact" data-cosmos-scene="5" aria-labelledby="contact-title">
+      <div class="contact-copy reveal">
+        <p class="overline">NEXT / COLLABORATION</p>
+        <!-- EDITABLE COPY: 用你的最终合作邀请替换标题与正文。 -->
+        <h2 id="contact-title">如果你需要的不是模板，<br>而是一个<strong>属于你的世界。</strong></h2>
+        <p>告诉我你正在构想什么、它要被谁看见，以及你希望人们在第一眼感受到什么。我们从那个最重要的感觉开始。</p>
+        <div class="contact-signature">赵卢鑫 <span>/ GOODMOOD</span></div>
+        <div class="location">BASED IN JIANGSU / CHINA</div>
+      </div>
+      <figure class="qr-card reveal">
+        <div class="qr-scan" aria-hidden="true"></div>
+        <img src="assets/wechat.jpg" alt="赵卢鑫的微信二维码">
+        <figcaption><span>WECHAT / CONNECT</span><b>SCAN TO START A CONVERSATION ↗</b></figcaption>
+      </figure>
+    </section>
+  </main>
+
+  <footer>
+    <span>© <b id="year"></b> 赵卢鑫 × GOODMOOD</span>
+    <span>VISUAL DIRECTION / CREATIVE TECHNOLOGY</span>
+    <a href="#home">BACK TO ORIGIN ↑</a>
+  </footer>
+  <div class="toast" role="status" aria-live="polite">COPIED</div>
+  <script src="cosmos.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
