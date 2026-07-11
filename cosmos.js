@@ -46,7 +46,7 @@
         float(gl_VertexID & 2)
       );
       vUv = position * 0.5;
-      gl_Position = vec4(position - 1.0, 0.0, 1.0);
+      gl_Position = vec4(position * 2.0 - 1.0, 0.0, 1.0);
     }
   `;
 
@@ -365,6 +365,7 @@
     render(frame) {
       const gl = this.gl;
       if (!this.program || gl.isContextLost()) return;
+      gl.clear(gl.COLOR_BUFFER_BIT);
       gl.useProgram(this.program);
       gl.bindVertexArray(this.vertexArray);
       gl.uniform2f(this.uniforms.resolution, frame.pixelWidth, frame.pixelHeight);
