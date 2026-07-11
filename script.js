@@ -12,32 +12,55 @@ const motionQuery = matchMedia('(prefers-reduced-motion: reduce)');
 const finePointer = matchMedia('(pointer: fine)').matches;
 const saveData = navigator.connection?.saveData === true;
 
-/* Keep previews and fresh visits at the origin while respecting deliberate hashes. */
+/* Every fresh page lifecycle starts at the origin; in-page navigation works after boot. */
 const initialUrl = new URL(location.href);
-const isVersionPreview = initialUrl.searchParams.has('v');
-const initialHash = isVersionPreview ? '' : initialUrl.hash.slice(1);
 const forceCanvas2D = initialUrl.searchParams.get('renderer') === '2d';
 
 if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
-if (isVersionPreview) history.replaceState(null, '', initialUrl.pathname);
+
+function normalizeEntryUrl() {
+  const url = new URL(location.href);
+  if (!url.hash && !url.searchParams.has('v')) return;
+  url.hash = '';
+  url.searchParams.delete('v');
+  history.replaceState(history.state, '', `${url.pathname}${url.search}`);
+}
+
+normalizeEntryUrl();
+
+let initialAlignmentCancelled = false;
+
+function cancelInitialAlignment() {
+  initialAlignmentCancelled = true;
+}
 
 function alignInitialPosition() {
+  if (initialAlignmentCancelled) return;
   const behavior = root.style.scrollBehavior;
   root.style.scrollBehavior = 'auto';
-
-  if (initialHash) {
-    document.getElementById(initialHash)?.scrollIntoView({ block: 'start' });
-  } else {
-    scrollTo(0, 0);
-  }
-
+  window.scrollTo(0, 0);
   root.style.scrollBehavior = behavior;
 }
 
-requestAnimationFrame(() => requestAnimationFrame(alignInitialPosition));
-addEventListener('pageshow', alignInitialPosition, { once: true });
+function scheduleInitialAlignment() {
+  requestAnimationFrame(() => requestAnimationFrame(alignInitialPosition));
+  setTimeout(alignInitialPosition, 180);
+}
+
+addEventListener('wheel', cancelInitialAlignment, { passive: true });
+addEventListener('touchstart', cancelInitialAlignment, { passive: true });
+addEventListener('pointerdown', cancelInitialAlignment, { passive: true });
+addEventListener('keydown', cancelInitialAlignment);
+
+scheduleInitialAlignment();
+addEventListener('pageshow', (event) => {
+  if (event.persisted) {
+    initialAlignmentCancelled = false;
+    normalizeEntryUrl();
+  }
+  scheduleInitialAlignment();
+});
 addEventListener('load', () => requestAnimationFrame(alignInitialPosition), { once: true });
-setTimeout(alignInitialPosition, 120);
 
 /* Navigation */
 const menu = $('.menu-toggle');
