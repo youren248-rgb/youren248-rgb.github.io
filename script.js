@@ -8,21 +8,26 @@ const saveData = navigator.connection?.saveData === true;
 const root = document.documentElement;
 const rootStyle = root.style;
 
-if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+const initialUrl = new URL(location.href);
+const previewVersion = initialUrl.searchParams.has('v');
+const initialHash = previewVersion ? '' : initialUrl.hash.slice(1);
 
-const previewVersion = new URLSearchParams(location.search).has('v');
-
-function resetInitialScroll() {
-  const previousBehavior = root.style.scrollBehavior;
-  root.style.scrollBehavior = 'auto';
-  scrollTo(0, 0);
-  root.style.scrollBehavior = previousBehavior;
+if (previewVersion) {
+  if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+  history.replaceState(null, '', initialUrl.pathname);
 }
 
-if (previewVersion) history.replaceState(null, '', location.pathname);
-if (previewVersion || !location.hash) {
-  requestAnimationFrame(resetInitialScroll);
-  addEventListener('pageshow', resetInitialScroll, { once: true });
+function alignInitialPosition() {
+  const previousBehavior = root.style.scrollBehavior;
+  root.style.scrollBehavior = 'auto';
+
+  if (previewVersion) {
+    scrollTo(0, 0);
+  } else if (initialHash) {
+    document.getElementById(initialHash)?.scrollIntoView({ block: 'start' });
+  }
+
+  root.style.scrollBehavior = previousBehavior;
 }
 
 root.classList.toggle('motion-ready', !reduceMotion.matches);
@@ -50,7 +55,7 @@ const scenePalettes = [
   { r: 239, g: 226, b: 204 },
   { r: 255, g: 190, b: 116 },
   { r: 255, g: 161, b: 72 },
-  { r: 121, g: 143, b: 255 },
+  { r: 245, g: 241, b: 232 },
   { r: 255, g: 207, b: 143 },
   { r: 245, g: 241, b: 232 },
 ];
@@ -94,6 +99,8 @@ parallaxConfig.forEach(([selector, amount]) => {
     item.dataset.parallax = String(amount);
   });
 });
+
+const parallaxItems = $$('[data-parallax]');
 
 const segmenter = typeof Intl.Segmenter === 'function'
   ? new Intl.Segmenter('zh-CN', { granularity: 'grapheme' })
@@ -186,6 +193,10 @@ function setActiveSection(index) {
   telemetryIndex.textContent = String(index).padStart(2, '0');
   telemetryLabel.textContent = sectionLabel(section);
 
+  pageSections.forEach((item, sectionIndex) => {
+    item.classList.toggle('is-current', sectionIndex === index);
+  });
+
   navLinks.forEach((link) => {
     if (link.getAttribute('href') === `#${section.id}`) {
       link.setAttribute('aria-current', 'page');
@@ -209,7 +220,10 @@ function updateScrollMotion() {
   lastScrollY = currentY;
 
   rootStyle.setProperty('--page-progress', pageProgress.toFixed(4));
-  rootStyle.setProperty('--bg-y', `${Math.round((pageProgress - 0.5) * -64)}px`);
+  rootStyle.setProperty(
+    '--bg-y',
+    motionEnabled ? `${Math.round((pageProgress - 0.5) * -64)}px` : '0px',
+  );
   progressBar.style.transform = `scaleX(${pageProgress})`;
 
   const sectionReads = pageSections.map((section) => {
@@ -218,18 +232,33 @@ function updateScrollMotion() {
     return { section, rect, progress };
   });
 
-  const parallaxReads = $$('[data-parallax]')
+  const parallaxReads = parallaxItems
     .map((item) => ({ item, rect: item.getBoundingClientRect() }))
-    .filter(({ rect }) => rect.bottom > -viewportHeight * 0.25 && rect.top < viewportHeight * 1.25);
+    .filter(({ rect }) => (
+      motionEnabled
+      && rect.bottom > -viewportHeight * 0.25
+      && rect.top < viewportHeight * 1.25
+    ));
 
   let nextActive = 0;
 
   sectionReads.forEach(({ section, rect, progress }, index) => {
-    const shift = (0.5 - progress) * 44;
-    section.style.setProperty('--chapter-progress', progress.toFixed(4));
-    section.style.setProperty('--view-shift', `${shift.toFixed(1)}px`);
-    section.style.setProperty('--view-shift-opposite', `${(-shift).toFixed(1)}px`);
-    section.style.setProperty('--view-lift', `${(shift * 0.42).toFixed(1)}px`);
+    const nearViewport = rect.bottom > -viewportHeight * 0.35
+      && rect.top < viewportHeight * 1.35;
+
+    section.classList.toggle('is-near', nearViewport);
+
+    if (!motionEnabled) {
+      section.style.setProperty('--view-shift', '0px');
+      section.style.setProperty('--view-shift-opposite', '0px');
+      section.style.setProperty('--view-lift', '0px');
+    } else if (nearViewport) {
+      const shift = (0.5 - progress) * 44;
+      section.style.setProperty('--chapter-progress', progress.toFixed(4));
+      section.style.setProperty('--view-shift', `${shift.toFixed(1)}px`);
+      section.style.setProperty('--view-shift-opposite', `${(-shift).toFixed(1)}px`);
+      section.style.setProperty('--view-lift', `${(shift * 0.42).toFixed(1)}px`);
+    }
 
     if (rect.top <= viewportHeight * 0.48 && rect.bottom > viewportHeight * 0.28) {
       nextActive = index;
@@ -329,26 +358,62 @@ if (carousel) {
   const counter = $('.work-counter b', carousel);
   const previous = $('[data-carousel-prev]', carousel);
   const next = $('[data-carousel-next]', carousel);
+  const controls = $('.work-controls', carousel);
+  const playback = document.createElement('button');
   let currentSlide = 0;
   let carouselTimer = 0;
+  let carouselFrame = 0;
   let carouselVisible = false;
-  let carouselPaused = false;
   let touchStartX = null;
+  const pauseReasons = new Set();
+
+  playback.type = 'button';
+  playback.className = 'work-playback';
+  playback.textContent = 'Ⅱ';
+  playback.setAttribute('aria-label', '暂停自动播放');
+  playback.setAttribute('aria-pressed', 'false');
+  controls.append(playback);
+
+  function syncPlaybackControl() {
+    const paused = pauseReasons.has('user');
+    playback.textContent = paused ? '▶' : 'Ⅱ';
+    playback.setAttribute('aria-label', paused ? '继续自动播放' : '暂停自动播放');
+    playback.setAttribute('aria-pressed', String(paused));
+  }
+
+  function canCycle() {
+    return carouselVisible
+      && !document.hidden
+      && !reduceMotion.matches
+      && pauseReasons.size === 0;
+  }
 
   function stopCarousel() {
     clearTimeout(carouselTimer);
+    cancelAnimationFrame(carouselFrame);
     carouselTimer = 0;
+    carouselFrame = 0;
     carousel.classList.remove('cycling');
   }
 
-  function startCarousel() {
+  function syncCarousel() {
+    playback.hidden = reduceMotion.matches;
     stopCarousel();
-    if (reduceMotion.matches || carouselPaused || !carouselVisible) return;
+    if (!canCycle()) return;
 
-    requestAnimationFrame(() => {
+    carouselFrame = requestAnimationFrame(() => {
+      carouselFrame = 0;
+      if (!canCycle()) return;
       carousel.classList.add('cycling');
       carouselTimer = setTimeout(() => showSlide(currentSlide + 1), 7000);
     });
+  }
+
+  function setPause(reason, paused) {
+    if (paused) pauseReasons.add(reason);
+    else pauseReasons.delete(reason);
+    syncPlaybackControl();
+    syncCarousel();
   }
 
   function showSlide(index) {
@@ -367,30 +432,46 @@ if (carousel) {
     });
 
     counter.textContent = String(currentSlide + 1).padStart(2, '0');
-    startCarousel();
+    syncCarousel();
   }
 
   previous.addEventListener('click', () => showSlide(currentSlide - 1));
   next.addEventListener('click', () => showSlide(currentSlide + 1));
-  slideTabs.forEach((tab) => tab.addEventListener('click', () => {
-    showSlide(Number(tab.dataset.carouselGo));
-  }));
+  playback.addEventListener('click', () => {
+    setPause('user', !pauseReasons.has('user'));
+  });
+
+  slideTabs.forEach((tab, index) => {
+    tab.addEventListener('click', () => {
+      showSlide(Number(tab.dataset.carouselGo));
+    });
+
+    tab.addEventListener('keydown', (event) => {
+      if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+      event.preventDefault();
+
+      let targetIndex = index;
+      if (event.key === 'ArrowLeft') targetIndex = (index - 1 + slideTabs.length) % slideTabs.length;
+      if (event.key === 'ArrowRight') targetIndex = (index + 1) % slideTabs.length;
+      if (event.key === 'Home') targetIndex = 0;
+      if (event.key === 'End') targetIndex = slideTabs.length - 1;
+
+      slideTabs[targetIndex].focus();
+      showSlide(targetIndex);
+    });
+  });
 
   carousel.addEventListener('mouseenter', () => {
-    carouselPaused = true;
-    stopCarousel();
+    setPause('hover', true);
   });
   carousel.addEventListener('mouseleave', () => {
-    carouselPaused = false;
-    startCarousel();
+    setPause('hover', false);
   });
   carousel.addEventListener('focusin', () => {
-    carouselPaused = true;
-    stopCarousel();
+    setPause('focus', true);
   });
-  carousel.addEventListener('focusout', () => {
-    carouselPaused = false;
-    startCarousel();
+  carousel.addEventListener('focusout', (event) => {
+    if (!carousel.contains(event.relatedTarget)) setPause('focus', false);
   });
   carousel.addEventListener('pointerdown', (event) => {
     if (event.pointerType === 'touch') touchStartX = event.clientX;
@@ -404,12 +485,12 @@ if (carousel) {
 
   const carouselObserver = new IntersectionObserver(([entry]) => {
     carouselVisible = entry.isIntersecting;
-    if (carouselVisible) startCarousel();
-    else stopCarousel();
+    syncCarousel();
   }, { threshold: 0.3 });
 
   carouselObserver.observe(carousel);
-  reduceMotion.addEventListener?.('change', startCarousel);
+  document.addEventListener('visibilitychange', syncCarousel);
+  reduceMotion.addEventListener?.('change', syncCarousel);
   showSlide(0);
 }
 
@@ -602,6 +683,12 @@ reduceMotion.addEventListener?.('change', (event) => {
   motionEnabled = !event.matches;
   cosmicStatic = event.matches || saveData;
   root.classList.toggle('motion-ready', motionEnabled);
+
+  if (!motionEnabled) {
+    rootStyle.setProperty('--bg-y', '0px');
+    parallaxItems.forEach((item) => item.style.setProperty('--parallax-y', '0px'));
+  }
+
   setupRevealObserver();
   scheduleScrollMotion();
 
@@ -617,6 +704,9 @@ resizeCosmos();
 setupRevealObserver();
 setActiveSection(0);
 updateScrollMotion();
+
+requestAnimationFrame(() => requestAnimationFrame(alignInitialPosition));
+if (previewVersion) addEventListener('pageshow', alignInitialPosition, { once: true });
 
 if (cosmicStatic) drawCosmos(0);
 else startCosmos();
