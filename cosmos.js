@@ -191,6 +191,8 @@
 
       float scenePhase = (sceneIndex + sceneBlend) / 5.0;
       float velocity = clamp(abs(uVelocity), 0.0, 1.0);
+      float travel = uScroll * 3.4;
+      float travelWave = sin((uScroll * 1.7 + scenePhase * 0.32) * TAU);
       vec2 pointer = uPointer.xy * vec2(
         uResolution.x / min(uResolution.x, uResolution.y),
         uResolution.y / min(uResolution.x, uResolution.y)
@@ -201,6 +203,7 @@
         mix(0.48, -0.2, scenePhase),
         0.08 + sin(scenePhase * TAU) * 0.16
       );
+      lensCenter += vec2(travelWave * 0.11, cos(travel * 1.15) * 0.08);
       lensCenter += pointer * 0.075;
       vec2 lensVector = point - lensCenter;
       float lensRadius = length(lensVector);
@@ -208,24 +211,25 @@
       vec2 bentPoint = point + normalize(lensVector + 0.0001) * lensForce;
 
       float slowTime = uTime * 0.045;
-      vec2 flowPoint = rotate2d(-0.16 + scenePhase * 0.36) * bentPoint;
-      flowPoint.y += uScroll * 0.34;
-      flowPoint.x += sin(flowPoint.y * 1.4 + slowTime) * 0.025;
+      vec2 flowPoint = rotate2d(-0.16 + scenePhase * 0.36 + uScroll * 0.2) * bentPoint;
+      flowPoint.y += travel;
+      flowPoint.x += sin(flowPoint.y * 1.4 + slowTime + travel * 0.7) * 0.055;
 
-      vec3 color = vec3(0.0015, 0.0035, 0.0085);
-      color += vec3(0.004, 0.007, 0.014) * (1.0 - length(point) * 0.18);
+      vec3 color = vec3(0.0026, 0.0052, 0.0125);
+      color += vec3(0.006, 0.011, 0.022) * (1.0 - length(point) * 0.18);
 
       float cloudA = fbm(flowPoint * 1.22 + vec2(slowTime, -slowTime * 0.42));
       float cloudB = fbm(flowPoint * 2.38 - vec2(slowTime * 0.58, slowTime * 0.31));
       float dust = smoothstep(0.39, 0.86, cloudA * 0.74 + cloudB * 0.38);
       float dustVeil = smoothstep(0.18, 0.9, cloudA) * profile.w;
-      color += mix(secondary, primary, cloudB) * dust * 0.105 * profile.w;
-      color += secondary * dustVeil * 0.012;
+      color += mix(secondary, primary, cloudB) * dust * 0.145 * profile.w;
+      color += secondary * dustVeil * 0.019;
 
       vec2 sunCenter = vec2(
         mix(0.72, 0.24, scenePhase),
         mix(0.26, -0.34, sin(scenePhase * PI) * 0.5 + 0.5)
       );
+      sunCenter += vec2(sin(travel * 0.82) * 0.13, cos(travel * 0.63) * 0.09);
       sunCenter += pointer * 0.035;
       vec2 sunVector = bentPoint - sunCenter;
       float sunRadius = length(sunVector);
@@ -246,7 +250,7 @@
 
       vec2 riftPoint = rotate2d(-0.58 + scenePhase * 1.14) * point;
       float riftPath = riftPoint.x
-        + sin(riftPoint.y * 2.15 + slowTime * 1.4 + scenePhase * 4.0) * 0.065
+        + sin(riftPoint.y * 2.15 + slowTime * 1.4 + scenePhase * 4.0 + travel) * 0.065
         - mix(-0.34, 0.3, scenePhase);
       float riftDistance = abs(riftPath);
       float riftCore = exp(-riftDistance * 150.0);
@@ -256,11 +260,12 @@
 
       float warp = velocity * (0.7 + profile.z * 0.55);
       vec2 starPoint = flowPoint;
-      starPoint.y += uTime * (0.008 + velocity * 0.19);
-      color += renderStars(starPoint, 9.0, 2.7, 0.78, warp, primary, secondary);
-      color += renderStars(starPoint * 1.13 + 1.7, 18.0, 7.1, 0.66, warp, primary, secondary);
+      starPoint.y += uTime * (0.01 + velocity * 0.24) + travel * 0.72;
+      starPoint.x += travelWave * 0.16;
+      color += renderStars(starPoint, 9.0, 2.7, 0.92, warp, primary, secondary);
+      color += renderStars(starPoint * 1.13 + 1.7, 18.0, 7.1, 0.8, warp, primary, secondary);
       if (uQuality > 0.72) {
-        color += renderStars(starPoint * 1.37 - 3.2, 31.0, 13.4, 0.42, warp, primary, secondary);
+        color += renderStars(starPoint * 1.37 - 3.2, 31.0, 13.4, 0.55, warp, primary, secondary);
       }
 
       vec2 pointerVector = point - pointer;
@@ -276,7 +281,7 @@
       float fixedGrain = hash21(pixel * 0.5) - 0.5;
       color += fixedGrain * 0.009;
 
-      color = 1.0 - exp(-color * 1.18);
+      color = 1.0 - exp(-color * 1.34);
       color = pow(max(color, 0.0), vec3(0.9));
       outColor = vec4(color, 1.0);
     }
@@ -456,9 +461,10 @@
       const width = frame.pixelWidth;
       const height = frame.pixelHeight;
       const phase = frame.scene / (SCENE_COUNT - 1);
+      const travel = frame.scrollProgress * 4.2;
       for (let index = 0; index < 4; index += 1) {
-        const x = width * (0.12 + ((index * 0.29 + phase * 0.16) % 0.9));
-        const y = height * (0.16 + ((index * 0.23 + phase * 0.31) % 0.74));
+        const x = width * (0.08 + ((index * 0.29 + phase * 0.16 + travel * 0.07) % 0.92));
+        const y = height * (0.12 + ((index * 0.23 + phase * 0.31 + travel * 0.13) % 0.78));
         const radius = Math.max(width, height) * (0.26 + index * 0.055);
         const color = index % 2 ? primary : secondary;
         const gradient = context.createRadialGradient(x, y, 0, x, y, radius);
@@ -475,8 +481,13 @@
       const width = frame.pixelWidth;
       const height = frame.pixelHeight;
       const phase = frame.scene / (SCENE_COUNT - 1);
-      const x = width * lerp(0.82, 0.56, phase) + frame.pointerX * width * 0.015;
-      const y = height * lerp(0.32, 0.68, phase) - frame.pointerY * height * 0.015;
+      const travel = frame.scrollProgress * 4.2;
+      const x = width * lerp(0.82, 0.56, phase)
+        + Math.sin(travel * 1.12) * width * 0.08
+        + frame.pointerX * width * 0.015;
+      const y = height * lerp(0.32, 0.68, phase)
+        + Math.cos(travel * 0.86) * height * 0.06
+        - frame.pointerY * height * 0.015;
       const radius = Math.min(width, height) * lerp(0.18, 0.29, Math.sin(phase * Math.PI));
       const bloom = context.createRadialGradient(x, y, radius * 0.04, x, y, radius * 2.4);
       bloom.addColorStop(0, rgba(primary, 0.02));
@@ -502,8 +513,13 @@
       const width = frame.pixelWidth;
       const height = frame.pixelHeight;
       const phase = frame.scene / (SCENE_COUNT - 1);
-      const lensX = width * lerp(0.72, 0.42, phase) + frame.pointerX * width * 0.035;
-      const lensY = height * (0.48 + Math.sin(phase * TAU) * 0.09) - frame.pointerY * height * 0.035;
+      const travel = frame.scrollProgress * 4.2;
+      const lensX = width * lerp(0.72, 0.42, phase)
+        + Math.sin(travel) * width * 0.07
+        + frame.pointerX * width * 0.035;
+      const lensY = height * (0.48 + Math.sin(phase * TAU) * 0.09)
+        + Math.cos(travel * 0.78) * height * 0.055
+        - frame.pointerY * height * 0.035;
       const lensRadius = Math.min(width, height) * 0.19;
 
       context.save();
@@ -517,8 +533,11 @@
       context.restore();
 
       context.save();
-      context.translate(width * lerp(0.28, 0.68, phase), height * 0.5);
-      context.rotate(lerp(-0.58, 0.56, phase));
+      context.translate(
+        width * lerp(0.28, 0.68, phase) + Math.sin(travel * 0.7) * width * 0.06,
+        height * 0.5 + Math.cos(travel) * height * 0.05
+      );
+      context.rotate(lerp(-0.58, 0.56, phase) + frame.scrollProgress * 0.2);
       context.strokeStyle = rgba(mixColor(primary, secondary, 0.42), 0.3);
       context.lineWidth = Math.max(1, Math.min(width, height) * 0.003);
       context.shadowBlur = Math.min(width, height) * 0.045;
@@ -542,12 +561,13 @@
       const width = frame.pixelWidth;
       const height = frame.pixelHeight;
       const limit = Math.round(lerp(190, this.stars.length, frame.quality));
-      const warp = Math.abs(frame.scrollVelocity) * height * 0.022;
+      const warp = Math.abs(frame.scrollVelocity) * height * 0.04;
       context.save();
       context.globalCompositeOperation = 'screen';
       for (let index = 0; index < limit; index += 1) {
         const star = this.stars[index];
-        const drift = frame.time * (0.0015 + star.depth * 0.004) + frame.scrollProgress * star.depth;
+        const drift = frame.time * (0.0018 + star.depth * 0.005)
+          + frame.scrollProgress * star.depth * 4.8;
         const x = ((star.x + frame.pointerX * 0.012 * star.depth) % 1 + 1) % 1 * width;
         const y = ((star.y + drift) % 1 + 1) % 1 * height;
         const size = star.size * (0.45 + star.depth) * Math.max(1, frame.dpr * 0.66);
@@ -572,7 +592,7 @@
       const secondary = mixColor(FALLBACK_PALETTES[index][1], FALLBACK_PALETTES[next][1], amount);
 
       context.globalCompositeOperation = 'source-over';
-      context.fillStyle = '#01040a';
+      context.fillStyle = '#02050d';
       context.fillRect(0, 0, frame.pixelWidth, frame.pixelHeight);
       this.drawDust(frame, primary, secondary);
       this.drawCorona(frame, primary);

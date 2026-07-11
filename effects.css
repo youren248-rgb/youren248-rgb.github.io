@@ -4,7 +4,7 @@
     calc(var(--pointer-x) * -12px),
     calc(var(--pointer-y) * -8px),
     0
-  );
+  ) translateY(calc((var(--page-progress) - .5) * -90px));
   transition: transform .18s linear;
 }
 
@@ -189,6 +189,11 @@
   transform: scaleX(clamp(0, calc(var(--section-progress, 0) * 2.2), 1));
   transform-origin: left;
   transition: opacity .5s ease;
+}
+
+.site-home .section::after {
+  transform: translate3d(0, calc((.5 - var(--section-progress, .5)) * 46px), 0);
+  transition: opacity .45s ease;
 }
 
 .section.is-current::before {
