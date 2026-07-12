@@ -17,6 +17,9 @@
   --violet: var(--ion);
   --pink: var(--bone);
   --grad: linear-gradient(112deg, var(--bone), var(--amber) 58%, var(--ion));
+  --font-body: Inter, "Arial Black", "Microsoft YaHei", "PingFang SC", system-ui, sans-serif;
+  --font-display: "Microsoft YaHei UI", "PingFang SC", "Noto Sans CJK SC", system-ui, sans-serif;
+  --font-tech: "Bahnschrift", "DIN Alternate", "Aptos Narrow", "Roboto Condensed", "Arial Narrow", "Segoe UI", sans-serif;
   --nav-h: 76px;
   --page-progress: 0;
   --pointer-x: 0;
@@ -41,7 +44,7 @@ body {
   background:
     radial-gradient(circle at 50% -10%, rgb(255 173 90 / 8%), transparent 28%),
     var(--bg);
-  font-family: Inter, "Arial Black", "Microsoft YaHei", "PingFang SC", system-ui, sans-serif;
+  font-family: var(--font-body);
   line-height: 1.65;
   overflow-x: hidden;
 }
@@ -90,6 +93,45 @@ blockquote,
 dl,
 dd {
   margin-top: 0;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display);
+}
+
+.brand,
+.nav-status,
+.section-label,
+.overline,
+.identity-brand,
+.hero-index,
+.kinetic,
+.scroll-cue,
+.signal-strip,
+.value-equation,
+.hero-facts article > span,
+.identity-sigil > p,
+.work-slide figcaption > span,
+.work-visual-index,
+.work-counter,
+.work-tabs,
+.value-card > span,
+.protocol-tab,
+.panel-id,
+.parameter-map,
+.force-diagram,
+.output-meta,
+.card-num,
+.focus-cards h4,
+.focus-cards small,
+.tutorial-card > span,
+.location {
+  font-family: var(--font-tech);
+  font-variant-numeric: tabular-nums slashed-zero;
+  font-feature-settings: "tnum" 1, "zero" 1;
 }
 
 .skip-link {
