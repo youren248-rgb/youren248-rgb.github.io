@@ -207,6 +207,11 @@
   transform: translateY(calc((.5 - var(--section-progress, .5)) * 22px));
 }
 
+.site-home .profile-portrait img {
+  translate: 0 calc((.5 - var(--section-progress, .5)) * 24px);
+  will-change: translate;
+}
+
 .button {
   position: relative;
   overflow: hidden;
@@ -240,7 +245,7 @@
 }
 
 .work-visual img {
-  transform: scale(1.07);
+  transform: scale(.985);
   transition: transform 7s cubic-bezier(.18, .74, .18, 1), filter .7s ease;
 }
 
@@ -455,6 +460,10 @@
     opacity: .24;
   }
 
+  .site-home .profile-portrait img {
+    translate: 0 calc((.5 - var(--section-progress, .5)) * 10px);
+  }
+
   .value-card:hover,
   .tutorial-card:hover {
     transform: none;
@@ -480,6 +489,7 @@
 
   .hero-depth img,
   .identity-sigil,
+  .profile-portrait img,
   .qr-card,
   .manifesto-quote,
   .value-cta,

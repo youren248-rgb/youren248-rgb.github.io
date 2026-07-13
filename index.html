@@ -9,9 +9,9 @@
   <script>
     if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
   </script>
-  <link rel="stylesheet" href="style.css?v=20260712-01">
+  <link rel="stylesheet" href="style.css?v=20260713-01">
   <link rel="stylesheet" href="tutorial.css">
-  <link rel="stylesheet" href="effects.css?v=20260711-06">
+  <link rel="stylesheet" href="effects.css?v=20260713-01">
   <link rel="preload" as="image" href="assets/hero-helios-lance.webp">
 </head>
 <body class="site-home">
@@ -36,10 +36,10 @@
     </button>
     <nav aria-label="主要导航">
       <a href="#manifesto">宣言</a>
+      <a href="#profile">关于</a>
       <a href="#works">作品</a>
       <a href="#value">价值</a>
       <a href="#process">方法</a>
-      <a href="#profile">关于</a>
       <a href="#ai-tutorial">教程</a>
       <a href="#contact">联系</a>
     </nav>
@@ -165,8 +165,55 @@
       </blockquote>
     </section>
 
-    <section class="works section works-odyssey" id="works" data-cosmos-scene="2" aria-labelledby="works-title">
-      <div class="section-label reveal"><span>SELECTED WORLDS</span><b>003</b></div>
+    <section class="profile section" id="profile" data-cosmos-scene="2" aria-labelledby="profile-title">
+      <div class="section-label reveal"><span>ABOUT THE AUTHOR</span><b>003</b></div>
+      <div class="profile-grid">
+        <div class="profile-heading reveal">
+          <p class="overline">ZHAO LUXIN / GOODMOOD</p>
+          <h2 id="profile-title">我的价值不在工具列表里。<br>而在每一次<strong>取舍与判断</strong>里。</h2>
+        </div>
+        <div class="profile-copy reveal">
+          <!-- EDITABLE COPY: 用你的真实个人经历、背景和目标替换以下简介。 -->
+          <p>我是赵卢鑫，以 <b>GOODMOOD</b> 为创作身份，常驻 <b>Jiangsu / China</b>。</p>
+          <p>我在图片创作、视频动态、网站体验、3D 视觉、粒子系统与 AI 辅助创作之间工作，把尚未成形的意象拆解为形体、节奏、光与交互，再重新组织为具有时间感和情绪张力的体验。</p>
+          <p>无论是一张图片、一支视频，还是一个网站，我关心的不只是它是否“好看”，而是它能否为一个想法建立独有的气场，并在真实媒介里持续成立。</p>
+        </div>
+        <figure class="profile-portrait reveal">
+          <img src="assets/profile-zhao-luxin.webp" width="800" height="1686" alt="赵卢鑫站在街边建筑前的日常照片" loading="lazy" decoding="async">
+          <figcaption><span>AUTHOR / HUMAN SIGNAL</span><b>003 / PRESENT</b></figcaption>
+        </figure>
+      </div>
+
+      <div class="capability-system reveal" aria-labelledby="capability-title">
+        <div class="capability-intro">
+          <p class="overline">CAPABILITY AS ONE SYSTEM</p>
+          <h3 id="capability-title">方向、动态与智能，<br>共同服务一个结果。</h3>
+        </div>
+        <div class="focus-cards">
+          <article>
+            <span class="card-num">01 / DIRECTION</span>
+            <h4>VISUAL JUDGMENT</h4>
+            <p>提炼核心感受，建立世界观、构图、色彩与材质边界，让表达拥有唯一方向。</p>
+            <small>CONCEPT · ART DIRECTION · SYSTEM</small>
+          </article>
+          <article>
+            <span class="card-num">02 / MOTION</span>
+            <h4>3D &amp; GENERATIVE</h4>
+            <p>用空间、镜头、粒子与程序化运动，让静态概念获得尺度、时间和身体。</p>
+            <small>FORM · CAMERA · PARTICLES</small>
+          </article>
+          <article>
+            <span class="card-num">03 / INTELLIGENCE</span>
+            <h4>AI WORKFLOW</h4>
+            <p>让 AI 参与研究、发散与验证，由我完成事实核验、审美决策和最终交付。</p>
+            <small>RESEARCH · SYNTHESIS · DECISION</small>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="works section works-odyssey" id="works" data-cosmos-scene="3" aria-labelledby="works-title">
+      <div class="section-label reveal"><span>SELECTED WORLDS</span><b>004</b></div>
       <div class="works-heading reveal">
         <div>
           <p class="overline">MY WORK / MY DECISIONS</p>
@@ -245,7 +292,7 @@
     </section>
 
     <section class="value section" id="value" data-cosmos-scene="3" aria-labelledby="value-title">
-      <div class="section-label reveal"><span>COLLABORATION VALUE</span><b>004</b></div>
+      <div class="section-label reveal"><span>COLLABORATION VALUE</span><b>005</b></div>
       <div class="value-heading reveal">
         <p class="overline">WHY WORK WITH ME</p>
         <h2 id="value-title">你得到的不只是一张图。<br>而是一套能让想法<strong>被看见、被相信、被记住</strong>的视觉判断。</h2>
@@ -280,8 +327,8 @@
       </div>
     </section>
 
-    <section class="process section" id="process" data-cosmos-scene="3" aria-labelledby="process-title">
-      <div class="section-label reveal"><span>WORKING METHOD</span><b>005</b></div>
+    <section class="process section" id="process" data-cosmos-scene="4" aria-labelledby="process-title">
+      <div class="section-label reveal"><span>WORKING METHOD</span><b>006</b></div>
       <div class="process-intro">
         <div class="reveal">
           <p class="overline">JUDGMENT × SYSTEM × DELIVERY</p>
@@ -315,49 +362,6 @@
             <h3>最后一公里不是导出。<br>是让价值抵达真实场景。</h3>
             <p>针对网站、内容或动态媒介完成比例、节奏、性能和响应式调整，同时整理可继续使用的资产与规则。</p>
             <div class="output-meta">OUTPUT / VISUAL SYSTEM · MOTION ASSETS · RESPONSIVE EXPERIENCE · DELIVERY NOTES</div>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <section class="profile section" id="profile" data-cosmos-scene="4" aria-labelledby="profile-title">
-      <div class="section-label reveal"><span>ABOUT THE AUTHOR</span><b>006</b></div>
-      <div class="profile-grid">
-        <div class="profile-heading reveal">
-          <p class="overline">ZHAO LUXIN / GOODMOOD</p>
-          <h2 id="profile-title">我的价值不在工具列表里。<br>而在每一次<strong>取舍与判断</strong>里。</h2>
-        </div>
-        <div class="profile-copy reveal">
-          <!-- EDITABLE COPY: 用你的真实个人经历、背景和目标替换以下简介。 -->
-          <p>我是赵卢鑫，以 GOODMOOD 为创作身份，常驻 <b>Jiangsu / China</b>。</p>
-          <p>我在视觉方向、3D 动态、粒子系统与 AI 辅助创作之间工作，把尚未成形的意象拆解为形体、节奏与光，再重新组织为具有时间感和情绪张力的体验。</p>
-          <p>我关心的不只是画面是否“好看”，而是它能否为一个想法建立独有的气场，并在真实的媒介里持续成立。</p>
-        </div>
-      </div>
-
-      <div class="capability-system reveal" aria-labelledby="capability-title">
-        <div class="capability-intro">
-          <p class="overline">CAPABILITY AS ONE SYSTEM</p>
-          <h3 id="capability-title">方向、动态与智能，<br>共同服务一个结果。</h3>
-        </div>
-        <div class="focus-cards">
-          <article>
-            <span class="card-num">01 / DIRECTION</span>
-            <h4>VISUAL JUDGMENT</h4>
-            <p>提炼核心感受，建立世界观、构图、色彩与材质边界，让表达拥有唯一方向。</p>
-            <small>CONCEPT · ART DIRECTION · SYSTEM</small>
-          </article>
-          <article>
-            <span class="card-num">02 / MOTION</span>
-            <h4>3D &amp; GENERATIVE</h4>
-            <p>用空间、镜头、粒子与程序化运动，让静态概念获得尺度、时间和身体。</p>
-            <small>FORM · CAMERA · PARTICLES</small>
-          </article>
-          <article>
-            <span class="card-num">03 / INTELLIGENCE</span>
-            <h4>AI WORKFLOW</h4>
-            <p>让 AI 参与研究、发散与验证，由我完成事实核验、审美决策和最终交付。</p>
-            <small>RESEARCH · SYNTHESIS · DECISION</small>
           </article>
         </div>
       </div>

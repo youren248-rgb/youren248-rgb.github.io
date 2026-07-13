@@ -919,15 +919,21 @@ main {
 
 .work-visual {
   position: relative;
+  display: grid;
+  place-items: center;
   min-width: 0;
   height: 100%;
   overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 45%, rgb(255 173 90 / 8%), transparent 58%),
+    #030307;
 }
 
 .work-visual img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
+  object-position: center;
   filter: contrast(1.06) saturate(.78) brightness(.83);
 }
 
@@ -1349,8 +1355,89 @@ main {
   align-items: end;
 }
 
+.profile-portrait {
+  position: relative;
+  grid-column: 1 / -1;
+  height: clamp(360px, 34vw, 470px);
+  margin: clamp(34px, 5vw, 64px) 0 0;
+  overflow: hidden;
+  border: 1px solid rgb(255 173 90 / 22%);
+  background: var(--panel);
+  clip-path: polygon(0 0, calc(100% - 24px) 0, 100% 24px, 100% 100%, 0 100%);
+  box-shadow:
+    0 42px 120px rgb(0 0 0 / 42%),
+    inset 0 0 0 1px rgb(245 241 232 / 3%);
+}
+
+.profile-portrait::before,
+.profile-portrait::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+}
+
+.profile-portrait::before {
+  z-index: 2;
+  inset: 13px;
+  border-top: 1px solid rgb(245 241 232 / 22%);
+  border-left: 1px solid rgb(245 241 232 / 10%);
+  background: linear-gradient(115deg, transparent 49%, rgb(255 173 90 / 38%) 49.5%, transparent 50%) no-repeat;
+  opacity: .64;
+}
+
+.profile-portrait::after {
+  z-index: 1;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgb(2 2 5 / 72%) 0, transparent 28% 74%, rgb(2 2 5 / 34%) 100%),
+    linear-gradient(0deg, rgb(2 2 5 / 68%) 0, transparent 42%),
+    linear-gradient(110deg, rgb(255 173 90 / 9%), transparent 42%, rgb(130 151 255 / 6%));
+}
+
+.profile-portrait img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 17%;
+  filter: saturate(.72) contrast(1.08) brightness(.78);
+  transform: scale(1.045);
+  transition: filter .55s ease, transform 1s cubic-bezier(.16, .84, .22, 1);
+}
+
+.profile-portrait:hover img {
+  filter: saturate(.86) contrast(1.05) brightness(.88);
+  transform: scale(1.018);
+}
+
+.profile-portrait figcaption {
+  position: absolute;
+  z-index: 3;
+  right: 20px;
+  bottom: 17px;
+  left: 20px;
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  color: var(--amber);
+  font-family: var(--font-tech);
+  font-size: .5rem;
+  font-weight: 900;
+  letter-spacing: .14em;
+}
+
+.profile-portrait figcaption b {
+  color: var(--bone);
+  font-weight: 700;
+}
+
 .profile-copy {
   color: #a59f96;
+  font-size: clamp(1.0625rem, 1.2vw, 1.125rem);
+  line-height: 1.72;
+}
+
+.profile-copy p {
+  margin-bottom: 1.15em;
 }
 
 .profile-copy b {
@@ -1728,28 +1815,43 @@ footer a {
     max-width: 720px;
   }
 
+  .profile-portrait {
+    height: clamp(390px, 62vw, 540px);
+  }
+
   .work-slide {
-    display: block;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(220px, 43%) minmax(0, 57%);
   }
 
   .work-visual {
-    position: absolute;
-    inset: 0;
+    position: relative;
+    inset: auto;
+    grid-column: 1;
+    grid-row: 1;
+    height: 100%;
+    min-height: 0;
+    border-bottom: 1px solid rgb(245 241 232 / 12%);
+  }
+
+  .work-visual img {
+    padding: 16px 12px 8px;
   }
 
   .work-showcase::after {
-    background: linear-gradient(180deg, rgb(2 2 5 / 8%), rgb(2 2 5 / 40%) 42%, rgb(2 2 5 / 96%) 73%);
+    background: linear-gradient(180deg, rgb(2 2 5 / 12%), transparent 38%, rgb(2 2 5 / 25%) 44%, transparent 52%, rgb(2 2 5 / 18%));
   }
 
   .work-slide figcaption {
-    position: absolute;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    justify-content: end;
-    min-height: 62%;
-    padding: 100px 28px 86px;
-    background: linear-gradient(180deg, transparent, rgb(2 2 5 / 96%) 48%);
+    position: relative;
+    inset: auto;
+    grid-column: 1;
+    grid-row: 2;
+    justify-content: start;
+    min-height: 0;
+    padding: clamp(24px, 4vh, 40px) 28px 86px;
+    background: linear-gradient(180deg, rgb(2 2 5 / 82%), rgb(2 2 5 / 98%));
   }
 
   .work-evidence {
@@ -1844,6 +1946,30 @@ footer a {
     display: block;
     min-height: max(100svh, 920px);
     padding: calc(var(--nav-h) + 28px) 18px 52px;
+  }
+
+  .profile-portrait {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 5;
+    margin-top: 30px;
+    clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 0 100%);
+  }
+
+  .profile-portrait img {
+    object-position: 50% 20%;
+  }
+
+  .profile-portrait figcaption {
+    right: 14px;
+    bottom: 13px;
+    left: 14px;
+    font-size: .44rem;
+  }
+
+  .profile-copy {
+    font-size: 1.04rem;
+    line-height: 1.72;
   }
 
   .hero-depth img {
@@ -1994,8 +2120,8 @@ footer a {
   }
 
   .work-slide figcaption {
-    min-height: 66%;
-    padding: 100px 16px 76px;
+    min-height: 0;
+    padding: 22px 16px 70px;
   }
 
   .work-slide h3 {
